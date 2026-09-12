@@ -140,7 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filter === 'fashion') return cat.includes('fashion');
         if (filter === 'grocery') return cat.includes('grocery');
         if (filter === 'beauty') return cat.includes('beauty');
-        if (filter === 'services') return cat.includes('service') || cat.includes('electronics');
+        if (filter === 'services') return cat.includes('service');
+        if (filter === 'electronics') return cat.includes('electronics');
         return true;
       });
 
@@ -470,6 +471,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ========== SMOOTH SECTION TRANSITIONS ==========
   // Sections are now visible by default - no hiding needed
+
+  // ========== NEWSLETTER ==========
+  document.querySelector('.newsletter-form button')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const input = document.querySelector('.newsletter-form input');
+    const email = input?.value.trim();
+    if (!email || !email.includes('@')) {
+      showToast('Please enter a valid email address', 'error');
+      return;
+    }
+    try {
+      await DB.addInquiry({
+        shopName: 'Newsletter',
+        ownerName: email,
+        phone: '',
+        category: 'Newsletter',
+        address: '',
+        description: 'Newsletter subscription'
+      });
+      input.value = '';
+      showToast('Subscribed successfully! Thank you.', 'success');
+    } catch (err) {
+      showToast('Something went wrong. Please try again.', 'error');
+    }
+  });
 
   // ========== COUNTER ANIMATION WITH EASING ==========
   function animateValue(el, start, end, duration) {
