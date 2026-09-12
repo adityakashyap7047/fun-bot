@@ -6,12 +6,11 @@ const settingSchema = new mongoose.Schema({
   password: { type: String, default: 'admin123' }
 });
 
-settingSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+settingSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
   if (!this.password.startsWith('$2a$') && !this.password.startsWith('$2b$')) {
     this.password = await bcrypt.hash(this.password, 10);
   }
-  next();
 });
 
 settingSchema.methods.comparePassword = async function (candidate) {
