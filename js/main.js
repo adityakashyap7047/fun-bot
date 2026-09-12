@@ -529,11 +529,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   statNumbers.forEach(num => statObserver.observe(num));
 
-  // ========== HAMBURGER ANIMATION ==========
-  hamburger?.addEventListener('click', function() {
-    this.classList.toggle('active');
-  });
-
   // ========== NAVBAR ANIMATION ON SCROLL ==========
   // Simple scroll-based navbar styling - no hide/show needed
 });

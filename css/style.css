@@ -318,6 +318,10 @@ input, textarea, select, button { font-family: inherit; }
   border-radius: 4px;
 }
 
+.mobile-login-item {
+  display: none;
+}
+
 .nav-btn {
   padding: 10px 24px;
   background: var(--gradient);

@@ -16,6 +16,7 @@ module.exports = function (passport) {
           if (isMatch) {
             return done(null, { _id: 'admin', username: settings.username, name: 'Administrator', role: 'admin' });
           }
+          return done(null, false, { message: 'Invalid username or password' });
         }
 
         // Check user collection
@@ -39,7 +40,7 @@ module.exports = function (passport) {
         {
           clientID: process.env.GOOGLE_CLIENT_ID,
           clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          callbackURL: '/api/auth/google/callback'
+          callbackURL: process.env.GOOGLE_CALLBACK_URL || '/api/auth/google/callback'
         },
         async (accessToken, refreshToken, profile, done) => {
           try {

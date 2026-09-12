@@ -181,12 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
         status: 'active', plan: 'basic'
       });
 
-      signupFormWrap.style.display = 'none';
-      signupSuccess.style.display = 'flex';
-      e.target.reset();
-      document.querySelectorAll('#obCategoryOptions .ob-option').forEach(b => b.classList.remove('selected'));
-      obData.category = null;
-      toast('Shop registered successfully!');
+      toast('Shop registered successfully! Redirecting...');
+      setTimeout(() => { window.location.href = 'shop.html'; }, 1000);
     } catch (err) {
       document.getElementById('signupError').innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + err.message;
       document.getElementById('signupError').classList.add('show');

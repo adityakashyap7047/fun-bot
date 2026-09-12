@@ -73,21 +73,40 @@ router.post('/forgot-check', async (req, res) => {
   }
 });
 
-// POST /api/auth/reset-password (requires authentication)
+// POST /api/auth/reset-password
 router.post('/reset-password', async (req, res) => {
-  if (!req.isAuthenticated()) return res.status(401).json({ error: 'Please log in to reset password' });
   try {
-    const { password } = req.body;
+    const { username, password } = req.body;
     if (!password || password.length < 4) return res.status(400).json({ error: 'Password must be at least 4 characters' });
 
-    if (req.user.role === 'admin') {
-      const settings = await Setting.findOne();
+    // If logged in, reset own password
+    if (req.isAuthenticated()) {
+      if (req.user.role === 'admin') {
+        const settings = await Setting.findOne();
+        settings.password = password;
+        await settings.save();
+        return res.json({ ok: true });
+      }
+      const user = await User.findById(req.user._id);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      user.password = password;
+      await user.save();
+      return res.json({ ok: true });
+    }
+
+    // Forgot password flow — username required in body
+    if (!username) return res.status(400).json({ error: 'Username required' });
+
+    // Reset admin password
+    const settings = await Setting.findOne();
+    if (settings && username === settings.username) {
       settings.password = password;
       await settings.save();
       return res.json({ ok: true });
     }
 
-    const user = await User.findById(req.user._id);
+    // Reset user password
+    const user = await User.findOne({ username: username.toLowerCase() });
     if (!user) return res.status(404).json({ error: 'User not found' });
     user.password = password;
     await user.save();

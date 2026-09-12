@@ -1243,7 +1243,7 @@
   left: 0;
   height: 3px;
   background: var(--gradient);
-  z-index: 10000;
+  z-index: 10001;
   transition: width 0.1s ease-out;
 }
 

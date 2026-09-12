@@ -9,10 +9,22 @@ const Setting = require('./models/Setting');
 
 async function seedData() {
   try {
-    // Check if data already exists
+    // Ensure admin settings exist
+    let settingCount = 0;
+    try {
+      settingCount = await Setting.countDocuments();
+    } catch (e) {
+      console.log('⏳ Waiting for MongoDB connection...');
+      return;
+    }
+
+    if (settingCount === 0) {
+      await Setting.create({ username: 'admin', password: 'admin123' });
+      console.log('👤 Admin account created (admin / admin123)');
+    }
+
     const shopCount = await Shop.countDocuments();
-    const settingCount = await Setting.countDocuments();
-    if (shopCount > 0 && settingCount > 0) {
+    if (shopCount > 0) {
       console.log('📦 Database already seeded, skipping...');
       return;
     }
@@ -76,11 +88,6 @@ async function seedData() {
       { title: 'Client call', time: '14:00-15:00', type: 'call', date: fmt(today) },
       { title: 'Review shop applications', time: '10:00-11:00', type: 'meeting', date: fmt(new Date(today.getTime() + 86400000)) }
     ]);
-
-    // Settings (only if not already present)
-    if (settingCount === 0) {
-      await Setting.create({ username: 'admin', password: 'admin123' });
-    }
 
     console.log('✅ Database seeded successfully!');
   } catch (err) {
