@@ -112,7 +112,27 @@
               </div>
               <div class="input-group-v2"><label>Phone</label><div class="input-wrapper-v2"><i class="fas fa-phone"></i><input type="tel" id="ob_phone" placeholder="Enter phone number" required></div></div>
               <div class="input-group-v2"><label>Shop Address</label><div class="input-wrapper-v2"><i class="fas fa-map-marker-alt"></i><input type="text" id="ob_address" placeholder="Enter your shop address" required></div></div>
-              <div class="input-group-v2"><label>Shop Image URL</label><div class="input-wrapper-v2"><i class="fas fa-image"></i><input type="url" id="ob_image" placeholder="https://example.com/shop.jpg"></div></div>
+              <div class="input-group-v2">
+                <label>Shop Image</label>
+                <div class="image-upload-group">
+                  <div class="image-upload-tabs">
+                    <button type="button" class="img-tab active" data-tab="upload" onclick="switchImageTab('ob', 'upload')"><i class="fas fa-upload"></i> Upload</button>
+                    <button type="button" class="img-tab" data-tab="url" onclick="switchImageTab('ob', 'url')"><i class="fas fa-link"></i> URL</button>
+                  </div>
+                  <div class="img-tab-content" id="ob-upload-tab">
+                    <label class="file-upload-area" for="ob_file">
+                      <i class="fas fa-cloud-upload-alt"></i>
+                      <span>Click or drag to upload</span>
+                      <small>JPG, PNG, GIF, WebP (max 5MB)</small>
+                      <input type="file" id="ob_file" accept="image/*" onchange="handleFilePreview(this, 'ob')">
+                    </label>
+                    <div class="file-preview" id="ob-preview" style="display:none"><img id="ob-preview-img"><button type="button" class="remove-preview" onclick="removePreview('ob')">&times;</button></div>
+                  </div>
+                  <div class="img-tab-content" id="ob-url-tab" style="display:none">
+                    <div class="input-wrapper-v2"><i class="fas fa-image"></i><input type="url" id="ob_image" placeholder="https://example.com/shop.jpg"></div>
+                  </div>
+                </div>
+              </div>
               <div class="input-group-v2"><label>Password</label><div class="input-wrapper-v2"><i class="fas fa-lock"></i><input type="password" id="ob_password" placeholder="Min 4 characters" required></div></div>
               <div class="input-group-v2"><label>Confirm Password</label><div class="input-wrapper-v2"><i class="fas fa-lock"></i><input type="password" id="ob_confirm" placeholder="Re-type password" required></div><div class="onboard-hint" id="obPassMatch"></div></div>
               <div class="login-error" id="signupError"><i class="fas fa-exclamation-circle"></i> Please fill all fields.</div>
@@ -277,7 +297,27 @@
         <div class="form-row"><div class="form-group"><label>Shop Name</label><input type="text" id="sf_name"></div><div class="form-group"><label>Category</label><select id="sf_category"><option value="">Select</option></select></div></div>
         <div class="form-group"><label>Description</label><textarea id="sf_description" rows="3"></textarea></div>
         <div class="form-group"><label>Address</label><input type="text" id="sf_address"></div>
-        <div class="form-group"><label>Image URL</label><input type="url" id="sf_image" placeholder="https://..."></div>
+        <div class="form-group">
+          <label>Shop Image</label>
+          <div class="image-upload-group">
+            <div class="image-upload-tabs">
+              <button type="button" class="img-tab active" data-tab="upload" onclick="switchImageTab('sf', 'upload')"><i class="fas fa-upload"></i> Upload</button>
+              <button type="button" class="img-tab" data-tab="url" onclick="switchImageTab('sf', 'url')"><i class="fas fa-link"></i> URL</button>
+            </div>
+            <div class="img-tab-content" id="sf-upload-tab">
+              <label class="file-upload-area" for="sf_file">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Click or drag to upload</span>
+                <small>JPG, PNG, GIF, WebP (max 5MB)</small>
+                <input type="file" id="sf_file" accept="image/*" onchange="handleFilePreview(this, 'sf')">
+              </label>
+              <div class="file-preview" id="sf-preview" style="display:none"><img id="sf-preview-img"><button type="button" class="remove-preview" onclick="removePreview('sf')">&times;</button></div>
+            </div>
+            <div class="img-tab-content" id="sf-url-tab" style="display:none">
+              <div class="input-wrapper-v2"><i class="fas fa-image"></i><input type="url" id="sf_image" placeholder="https://example.com/shop.jpg"></div>
+            </div>
+          </div>
+        </div>
         <div class="form-actions"><button type="button" class="btn btn-ghost" id="shopFormCancel">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
       </form>
     </div>

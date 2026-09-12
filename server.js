@@ -54,6 +54,7 @@ app.use(passport.session());
 require('./config/passport')(passport);
 
 app.use(express.static(path.join(__dirname)));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection + Seed
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplocal')
@@ -86,6 +87,7 @@ app.use('/api/notes', require('./routes/notes'));
 app.use('/api/events', require('./routes/events'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/announcements', require('./routes/announcements'));
+app.use('/api/upload', require('./routes/upload'));
 
 // Make auth middleware available to routes
 app.locals.ensureAuth = ensureAuth;

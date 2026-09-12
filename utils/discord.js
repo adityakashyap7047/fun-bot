@@ -51,6 +51,7 @@ async function sendToChannel(webhookUrl, title, description, color = COLORS.gree
     await axios.post(webhookUrl, {
       username: 'ShopLocal Bot',
       avatar_url: 'https://img.icons8.com/color/96/shop.png',
+      content: '@everyone',
       embeds: [embed]
     });
     console.log(`✅ Discord: ${title}`);
@@ -85,6 +86,7 @@ async function broadcastToAll(title, description, color = COLORS.purple, fields 
       axios.post(url, {
         username: 'ShopLocal Bot',
         avatar_url: 'https://img.icons8.com/color/96/shop.png',
+        content: '@everyone',
         embeds: [embed]
       })
     )
