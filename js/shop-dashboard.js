@@ -2,6 +2,43 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ========== IMAGE UPLOAD HELPERS ==========
+  window.switchImageTab = function(prefix, tab) {
+    document.querySelectorAll(`.image-upload-tabs .img-tab`).forEach(t => t.classList.remove('active'));
+    document.querySelector(`#${prefix}-upload-tab`).parentElement.parentElement.querySelector(`.img-tab[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById(`${prefix}-upload-tab`).style.display = tab === 'upload' ? 'block' : 'none';
+    document.getElementById(`${prefix}-url-tab`).style.display = tab === 'url' ? 'block' : 'none';
+  };
+
+  window.handleFilePreview = function(input, prefix) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById(`${prefix}-preview-img`).src = e.target.result;
+      document.getElementById(`${prefix}-preview`).style.display = 'block';
+      input.closest('.file-upload-area').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.removePreview = function(prefix) {
+    document.getElementById(`${prefix}-preview`).style.display = 'none';
+    document.getElementById(`${prefix}-preview-img`).src = '';
+    document.getElementById(`${prefix}-file`).value = '';
+    document.getElementById(`${prefix}-upload-tab`).querySelector('.file-upload-area').style.display = 'flex';
+  };
+
+  async function uploadFile(fileInput) {
+    if (!fileInput || !fileInput.files[0]) return null;
+    const form = new FormData();
+    form.append('image', fileInput.files[0]);
+    const res = await fetch('/api/upload', { method: 'POST', body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+    return data.url;
+  }
+
   // ========== TOAST ==========
   function toast(msg, type = 'success') {
     const c = document.getElementById('toastContainer');
@@ -195,7 +232,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const regData = await regRes.json();
       if (!regRes.ok) throw new Error(regData.error || 'Registration failed');
-      await DB.addShop({ name: shop, owner: name, category: obData.category, phone, address, description: '', image, status: 'active', plan: 'basic' });
+      let imageUrl = document.getElementById('ob_image').value.trim();
+      const obFile = document.getElementById('ob_file');
+      if (obFile.files[0]) {
+        imageUrl = await uploadFile(obFile);
+      }
+      await DB.addShop({ name: shop, owner: name, category: obData.category, phone, address, description: '', image: imageUrl || '', status: 'active', plan: 'basic' });
       signupFormWrap.style.display = 'none';
       signupSuccess.style.display = 'flex';
       e.target.reset();
@@ -417,6 +459,17 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('sf_description').value = shop.description || '';
       document.getElementById('sf_address').value = shop.address || '';
       document.getElementById('sf_image').value = shop.image || '';
+      document.getElementById('sf_file').value = '';
+      document.getElementById('sf-preview').style.display = 'none';
+      document.getElementById('sf-upload-tab').querySelector('.file-upload-area').style.display = 'flex';
+      if (shop.image) {
+        document.getElementById('sf-preview-img').src = shop.image;
+        document.getElementById('sf-preview').style.display = 'block';
+        document.getElementById('sf-upload-tab').querySelector('.file-upload-area').style.display = 'none';
+        switchImageTab('sf', 'upload');
+      } else {
+        switchImageTab('sf', 'upload');
+      }
       document.getElementById('shopFormModal').classList.add('active');
     });
   }
@@ -734,11 +787,16 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('shopForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('editShopId').value;
+    let imageUrl = document.getElementById('sf_image').value.trim();
+    const sfFile = document.getElementById('sf_file');
+    if (sfFile.files[0]) {
+      imageUrl = await uploadFile(sfFile);
+    }
     await DB.updateShop(id, {
       name: document.getElementById('sf_name').value,
       description: document.getElementById('sf_description').value,
       address: document.getElementById('sf_address').value,
-      image: document.getElementById('sf_image').value
+      image: imageUrl || ''
     });
     document.getElementById('shopFormModal').classList.remove('active');
     toast('Shop updated!');
@@ -779,5 +837,92 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sidebarOverlay')?.classList.remove('active');
   });
   document.getElementById('sidebarCollapse')?.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('collapsed'));
+
+  // ========== DISCORD TESTER ==========
+  const DC_API = window.location.origin;
+
+  const dcPayloads = {
+    shopCreated:        { url: '/api/shops', body: { name: 'Test Shop', owner: 'Test Owner', category: 'Food & Drinks', phone: '9999999999', plan: 'pro', status: 'active', description: 'Discord webhook test' } },
+    shopUpdated:        { url: '/api/shops', body: { name: 'Update Shop', owner: 'Owner', category: 'Retail', phone: '8888888888', status: 'active' } },
+    shopStatusChanged:  { url: '/api/shops', body: { name: 'Status Shop', owner: 'Owner', category: 'Services', phone: '7777777777', status: 'pending' } },
+    shopDeleted:        { url: '/api/shops', body: { name: 'Delete Shop', owner: 'Owner', category: 'Other', phone: '6666666666', status: 'active' } },
+    inquiryCreated:     { url: '/api/inquiries', body: { shopName: 'Inquiry Shop', ownerName: 'Inquiry Owner', phone: '5555555555', category: 'Food & Drinks', description: 'Test inquiry' } },
+    inquiryDeleted:     { url: '/api/inquiries', body: { shopName: 'Delete Inquiry', ownerName: 'Owner', phone: '4444444444' } },
+    testimonialCreated: { url: '/api/testimonials', body: { name: 'Happy Customer', shop: 'Test Shop', rating: 5, review: 'Amazing service!' } },
+    taskCreated:        { url: '/api/tasks', body: { title: 'Follow up', description: 'Call vendor', priority: 'high', dueDate: '2026-09-15' } },
+    taskCompleted:      { url: '/api/tasks', body: { title: 'Done Task', priority: 'medium' } },
+    categoryCreated:    { url: '/api/categories', body: { name: 'Electronics', icon: 'fas fa-laptop' } },
+    noteCreated:        { url: '/api/notes', body: { title: 'Test Note', content: 'Remember this', color: '#6c5ce7' } },
+    eventCreated:       { url: '/api/events', body: { title: 'Team Standup', date: '2026-09-15', time: '10:00', type: 'meeting' } }
+  };
+
+  function dcLog(msg, ok = true) {
+    const el = document.getElementById('discordLog');
+    if (!el) return;
+    el.style.display = 'block';
+    el.innerHTML += `<div class="${ok ? 'ok' : 'fail'}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  async function dcPost(url, body) {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error(`${res.status}`);
+    return await res.json();
+  }
+
+  window.discordTest = async function(name) {
+    const conf = dcPayloads[name];
+    if (!conf) return;
+    try {
+      if (name === 'shopUpdated' || name === 'shopStatusChanged') {
+        const created = await dcPost(`${DC_API}${conf.url}`, { ...conf.body, name: 'Target Shop', phone: '1111111111', status: 'pending' });
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(name === 'shopStatusChanged' ? { status: 'active' } : { name: 'Updated Shop' }) });
+      } else if (name === 'shopDeleted') {
+        const created = await dcPost(`${DC_API}${conf.url}`, conf.body);
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE' });
+      } else if (name === 'inquiryDeleted') {
+        const created = await dcPost(`${DC_API}${conf.url}`, conf.body);
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE' });
+      } else if (name === 'taskCompleted') {
+        const created = await dcPost(`${DC_API}${conf.url}`, { ...conf.body, title: 'Complete Target' });
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ done: true }) });
+      } else {
+        await dcPost(`${DC_API}${conf.url}`, conf.body);
+      }
+      dcLog(`✅ ${name} sent`);
+    } catch (err) {
+      dcLog(`❌ ${name}: ${err.message}`, false);
+    }
+  };
+
+  window.discordTestAll = async function() {
+    const btn = document.getElementById('discordTestAllBtn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...'; }
+    for (const key of Object.keys(dcPayloads)) {
+      await window.discordTest(key);
+      await new Promise(r => setTimeout(r, 1200));
+    }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-play"></i> Trigger All (One by One)'; }
+  };
+
+  window.discordAnnounce = async function() {
+    const title = document.getElementById('announceTitle')?.value.trim();
+    const message = document.getElementById('announceMessage')?.value.trim();
+    const color = document.getElementById('announceColor')?.value || 'purple';
+    if (!title || !message) { dcLog('❌ Enter title and message', false); return; }
+    try {
+      await dcPost(`${DC_API}/api/announcements`, { title, message, color });
+      dcLog(`✅ Announcement "${title}" sent`);
+      document.getElementById('announceTitle').value = '';
+      document.getElementById('announceMessage').value = '';
+    } catch (err) { dcLog(`❌ Announcement: ${err.message}`, false); }
+  };
+
+  window.discordBotTest = async function() {
+    try {
+      await dcPost(`${DC_API}/api/announcements/test`, {});
+      dcLog('✅ Bot test sent');
+    } catch (err) { dcLog(`❌ Bot test: ${err.message}`, false); }
+  };
 
 });

@@ -532,3 +532,212 @@
   .color-picker-grid { grid-template-columns: 1fr 1fr; }
   .analytics-stat-big .value { font-size: 2rem; }
 }
+
+/* ========== IMAGE UPLOAD ========== */
+.image-upload-group {
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.image-upload-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.img-tab {
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.img-tab:hover {
+  background: rgba(79, 110, 247, 0.05);
+  color: var(--primary);
+}
+
+.img-tab.active {
+  background: rgba(79, 110, 247, 0.08);
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+}
+
+.img-tab-content {
+  padding: 12px;
+}
+
+.file-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 16px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.file-upload-area:hover {
+  border-color: var(--primary);
+  background: rgba(79, 110, 247, 0.04);
+}
+
+.file-upload-area i {
+  font-size: 2rem;
+  color: var(--primary);
+  opacity: 0.6;
+}
+
+.file-upload-area span {
+  font-size: 0.9rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.file-upload-area small {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.file-upload-area input[type="file"] {
+  display: none;
+}
+
+.file-preview {
+  position: relative;
+  width: 100%;
+  max-height: 180px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.file-preview img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+.remove-preview {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.remove-preview:hover {
+  background: var(--danger, #ef4444);
+}
+
+/* ========== DISCORD TESTER ========== */
+.discord-test-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.discord-test-card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.discord-test-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.discord-test-card h4 {
+  font-size: 0.9rem;
+  color: var(--text, #1a202c);
+  margin: 0;
+}
+
+.discord-test-card p {
+  font-size: 0.75rem;
+  color: var(--text-muted, #718096);
+  margin: 0;
+}
+
+.dtc-header {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.discord-test-card .badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.discord-test-card .badge.create { background: #d1fae5; color: #065f46; }
+.discord-test-card .badge.update { background: #ede9fe; color: #5b21b6; }
+.discord-test-card .badge.delete { background: #fee2e2; color: #991b1b; }
+
+.discord-announce-box {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.discord-log {
+  margin-top: 20px;
+  background: #0d1b2a;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  max-height: 200px;
+  overflow-y: auto;
+  color: #94a3b8;
+  display: none;
+}
+
+.discord-log .ok { color: #34d399; }
+.discord-log .fail { color: #f87171; }
+
+@media (max-width: 768px) {
+  .discord-test-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .discord-test-grid { grid-template-columns: 1fr; }
+}
