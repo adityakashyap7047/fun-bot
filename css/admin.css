@@ -695,6 +695,7 @@ input, textarea, select { font-family: inherit; }
   align-items: center;
   gap: 6px;
   padding: 0;
+  margin-bottom: -12px;
   width: fit-content;
   transition: color 0.2s;
 }
