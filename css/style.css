@@ -1061,6 +1061,7 @@ input, textarea, select, button { font-family: inherit; }
 .pricing {
   padding: var(--section-padding) 0;
   background: var(--light);
+  overflow: visible;
 }
 
 .pricing-grid {
@@ -1068,6 +1069,7 @@ input, textarea, select, button { font-family: inherit; }
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
   align-items: stretch;
+  padding-top: 16px;
 }
 
 .pricing-card {
@@ -1950,7 +1952,7 @@ select:focus-visible {
   -webkit-backdrop-filter: blur(20px) !important;
   border: 1px solid rgba(255, 255, 255, 0.5) !important;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .pricing-card::before {
