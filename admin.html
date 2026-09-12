@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopLocal - Admin Panel</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- ONBOARDING PARTICLES BG -->
+  <div class="onboarding-particles" id="onboardingParticles"></div>
+
+  <!-- ========== AUTH SCREEN (LOGIN / SIGNUP) ========== -->
+  <div class="auth-screen" id="authScreen">
+    <!-- Animated Background -->
+    <div class="login-bg">
+      <div class="login-bg-orb orb-1"></div>
+      <div class="login-bg-orb orb-2"></div>
+      <div class="login-bg-orb orb-3"></div>
+      <div class="login-bg-grid"></div>
+    </div>
+
+    <div class="auth-wrapper">
+      <!-- Left Panel - Branding -->
+      <div class="login-branding">
+        <div class="branding-content">
+          <div class="brand-logo">
+            <div class="brand-logo-icon">
+              <i class="fas fa-store"></i>
+            </div>
+            <span class="brand-logo-text">Shop<span>Local</span></span>
+          </div>
+          <h1 class="brand-headline">Grow Your Local Business</h1>
+          <p class="brand-tagline">Join thousands of shop owners who are reaching more customers every day.</p>
+          <div class="brand-features">
+            <div class="brand-feature">
+              <div class="feature-dot"></div>
+              <span>Free shop listing & promotion</span>
+            </div>
+            <div class="brand-feature">
+              <div class="feature-dot"></div>
+              <span>Reach 10,000+ local customers</span>
+            </div>
+            <div class="brand-feature">
+              <div class="feature-dot"></div>
+              <span>Analytics & insights dashboard</span>
+            </div>
+            <div class="brand-feature">
+              <div class="feature-dot"></div>
+              <span>Start for just ₹99/month</span>
+            </div>
+          </div>
+          <div class="brand-stats">
+            <div class="brand-stat">
+              <strong>500+</strong>
+              <span>Active Shops</span>
+            </div>
+            <div class="brand-stat">
+              <strong>10K+</strong>
+              <span>Customers</span>
+            </div>
+            <div class="brand-stat">
+              <strong>50+</strong>
+              <span>Cities</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel - Auth Cards -->
+      <div class="login-form-panel">
+        <div class="auth-container">
+
+          <!-- ========== AUTH CHOICE ========== -->
+          <div class="auth-choice" id="authChoice">
+            <div class="auth-choice-top">
+              <div class="auth-welcome-icon"><i class="fas fa-hand-wave"></i></div>
+              <h2>Welcome to ShopLocal</h2>
+              <p>Choose an option to get started</p>
+            </div>
+
+            <div class="auth-cards">
+              <button class="auth-option-card" id="showLoginCard">
+                <div class="auth-option-icon login-icon"><i class="fas fa-sign-in-alt"></i></div>
+                <div class="auth-option-info">
+                  <h3>Login</h3>
+                  <p>Already have an account? Sign in to your dashboard.</p>
+                </div>
+                <i class="fas fa-arrow-right auth-option-arrow"></i>
+              </button>
+
+              <button class="auth-option-card" id="showSignupCard">
+                <div class="auth-option-icon signup-icon"><i class="fas fa-user-plus"></i></div>
+                <div class="auth-option-info">
+                  <h3>Sign Up</h3>
+                  <p>New here? Register your shop and start promoting.</p>
+                </div>
+                <i class="fas fa-arrow-right auth-option-arrow"></i>
+              </button>
+            </div>
+
+            <div class="auth-choice-admin">
+              <p>Admin? <a href="#" id="showAdminLogin">Login as Admin</a></p>
+            </div>
+          </div>
+
+          <!-- ========== LOGIN FORM ========== -->
+          <div class="auth-form-wrap" id="loginFormWrap" style="display:none;">
+            <button class="auth-back" id="loginBack"><i class="fas fa-arrow-left"></i> Back</button>
+            <div class="auth-form-header">
+              <div class="auth-form-icon login-icon"><i class="fas fa-sign-in-alt"></i></div>
+              <h2>Welcome back</h2>
+              <p>Sign in to your partner dashboard</p>
+            </div>
+
+            <form id="loginForm" class="login-form-v2">
+              <div class="input-group-v2">
+                <label>Username</label>
+                <div class="input-wrapper-v2">
+                  <i class="fas fa-user"></i>
+                  <input type="text" id="loginUser" placeholder="Enter your username" required autocomplete="username">
+                </div>
+              </div>
+              <div class="input-group-v2">
+                <label>Password</label>
+                <div class="input-wrapper-v2">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="loginPass" placeholder="Enter your password" required autocomplete="current-password">
+                  <button type="button" class="toggle-pass" id="togglePass"><i class="fas fa-eye"></i></button>
+                </div>
+              </div>
+
+              <div class="login-options">
+                <label class="remember-me">
+                  <input type="checkbox" checked> <span>Remember me</span>
+                </label>
+                <a href="#" class="forgot-pass">Forgot password?</a>
+              </div>
+
+              <div class="login-error" id="loginError">
+                <i class="fas fa-exclamation-circle"></i> Invalid credentials. Try again.
+              </div>
+
+              <button type="submit" class="btn-login-v2">
+                <span>Sign in</span>
+                <i class="fas fa-arrow-right"></i>
+              </button>
+            </form>
+
+            <div class="auth-divider"><span>or</span></div>
+            <a href="/api/auth/google" class="btn-google-signin">
+              <i class="fab fa-google"></i> Sign in with Google
+            </a>
+          </div>
+
+          <!-- ========== SIGNUP FORM ========== -->
+          <div class="auth-form-wrap" id="signupFormWrap" style="display:none;">
+            <button class="auth-back" id="signupBack"><i class="fas fa-arrow-left"></i> Back</button>
+            <div class="auth-form-header">
+              <div class="auth-form-icon signup-icon"><i class="fas fa-user-plus"></i></div>
+              <h2>Create Account</h2>
+              <p>Register your shop in a few easy steps</p>
+            </div>
+
+            <form id="signupForm" class="login-form-v2">
+              <div class="input-group-v2">
+                <label>Your Name</label>
+                <div class="input-wrapper-v2">
+                  <i class="fas fa-user"></i>
+                  <input type="text" id="ob_name" placeholder="Enter your full name" required autocomplete="off">
+                </div>
+              </div>
+              <div class="input-group-v2">
+                <label>Shop Name</label>
+                <div class="input-wrapper-v2">
+                  <i class="fas fa-store"></i>
+                  <input type="text" id="ob_shop" placeholder="Enter your shop name" required autocomplete="off">
+                </div>
+              </div>
+              <div class="input-group-v2">
+                <label>Category</label>
+                <div class="auth-category-grid" id="obCategoryOptions">
+                  <button type="button" class="ob-option" data-value="Food & Drinks"><i class="fas fa-utensils"></i> Food</button>
+                  <button type="button" class="ob-option" data-value="Fashion"><i class="fas fa-tshirt"></i> Fashion</button>
+                  <button type="button" class="ob-option" data-value="Grocery"><i class="fas fa-shopping-basket"></i> Grocery</button>
+                  <button type="button" class="ob-option" data-value="Beauty"><i class="fas fa-spa"></i> Beauty</button>
+                  <button type="button" class="ob-option" data-value="Services"><i class="fas fa-tools"></i> Services</button>
+                  <button type="button" class="ob-option" data-value="Electronics"><i class="fas fa-laptop"></i> Tech</button>
+                </div>
+              </div>
+              <div class="input-group-v2">
+                <label>Phone</label>
+                <div class="input-wrapper-v2">
+                  <i class="fas fa-phone"></i>
+                  <input type="tel" id="ob_phone" placeholder="Enter phone number" required autocomplete="off">
+                </div>
+              </div>
+              <div class="input-group-v2">
+                <label>Password</label>
+                <div class="input-wrapper-v2">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="ob_password" placeholder="Min 4 characters" required autocomplete="new-password">
+                </div>
+              </div>
+              <div class="input-group-v2">
+                <label>Confirm Password</label>
+                <div class="input-wrapper-v2">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="ob_confirm" placeholder="Re-type password" required autocomplete="new-password">
+                </div>
+                <div class="onboard-hint" id="obPassMatch"></div>
+              </div>
+
+              <div class="login-error" id="signupError">
+                <i class="fas fa-exclamation-circle"></i> Please fill all fields.
+              </div>
+
+              <button type="submit" class="btn-login-v2 signup-btn">
+                <span>Create Account</span>
+                <i class="fas fa-check"></i>
+              </button>
+            </form>
+          </div>
+
+          <!-- ========== SIGNUP SUCCESS ========== -->
+          <div class="auth-form-wrap" id="signupSuccess" style="display:none;">
+            <div class="auth-success">
+              <div class="complete-icon"><i class="fas fa-check"></i></div>
+              <h2>You're all set!</h2>
+              <p>Your shop has been registered. Welcome to ShopLocal!</p>
+              <button class="btn-login-v2" id="goToLoginFromSuccess">
+                <span>Go to Login</span>
+                <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== ONBOARDING FLOW (hidden, used by JS) ========== -->
+  <div class="onboarding" id="onboarding" style="display:none;">
+    <div class="onboard-step active" id="onboardStep0"></div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div class="admin-dashboard" id="adminDashboard" style="display:none;">
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-avatar">S</div>
+        <div class="brand-info">
+          <span class="brand-name">ShopLocal</span>
+          <span class="brand-status">Active</span>
+        </div>
+        <button class="sidebar-collapse" id="sidebarCollapse"><i class="fas fa-chevron-left"></i></button>
+      </div>
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">General</span>
+        <nav class="sidebar-nav">
+          <a href="#" class="nav-item active" data-tab="dashboard">
+            <i class="fas fa-chart-pie"></i> Overview
+          </a>
+          <a href="#" class="nav-item" data-tab="analytics">
+            <i class="fas fa-chart-line"></i> Analytics
+          </a>
+          <a href="#" class="nav-item" data-tab="shops">
+            <i class="fas fa-store"></i> Shops
+          </a>
+          <a href="#" class="nav-item" data-tab="customers">
+            <i class="fas fa-users"></i> Customers
+          </a>
+          <a href="#" class="nav-item" data-tab="categories">
+            <i class="fas fa-tags"></i> Categories
+          </a>
+          <a href="#" class="nav-item" data-tab="inquiries">
+            <i class="fas fa-envelope"></i> Inquiries
+          </a>
+          <a href="#" class="nav-item" data-tab="tasks">
+            <i class="fas fa-check-circle"></i> Tasks
+          </a>
+          <a href="#" class="nav-item" data-tab="calendar">
+            <i class="fas fa-calendar"></i> Calendar
+          </a>
+          <a href="#" class="nav-item" data-tab="notes">
+            <i class="fas fa-sticky-note"></i> Notes
+          </a>
+          <a href="#" class="nav-item" data-tab="testimonials-mgmt">
+            <i class="fas fa-star"></i> Testimonials
+          </a>
+          <a href="#" class="nav-item" data-tab="settings">
+            <i class="fas fa-cog"></i> Settings
+          </a>
+          <a href="#" class="nav-item" data-tab="announcements">
+            <i class="fas fa-bullhorn"></i> Announcements
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="index.html" class="sidebar-link"><i class="fas fa-globe"></i> View Website</a>
+        <a href="#" class="sidebar-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+      <!-- TOPBAR -->
+      <header class="admin-topbar">
+        <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+        <div class="topbar-logo">
+          <div class="logo-icon">S</div>
+          <span>Partner Portal</span>
+        </div>
+        <div class="topbar-tabs">
+          <button class="topbar-tab">This week</button>
+          <button class="topbar-tab active">This month</button>
+          <button class="topbar-tab">This quarter</button>
+        </div>
+        <div class="topbar-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search..." id="globalSearch">
+          <kbd>Ctrl K</kbd>
+        </div>
+        <div class="topbar-actions">
+          <button class="topbar-icon-btn"><i class="fas fa-bell"></i></button>
+          <button class="topbar-icon-btn"><i class="fas fa-cog"></i></button>
+          <div class="topbar-avatar">A</div>
+        </div>
+      </header>
+
+      <!-- CONTENT AREA -->
+      <div class="admin-content">
+
+        <!-- ========== OVERVIEW TAB ========== -->
+        <div class="admin-tab active" id="tab-dashboard">
+          <!-- STATS GRID -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Shops</span>
+                <button class="stat-card-icon"><i class="fas fa-ellipsis-h"></i></button>
+              </div>
+              <div class="stat-card-value" id="totalShops">0</div>
+              <div class="stat-card-sub">total listings</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Active</span>
+                <button class="stat-card-icon"><i class="fas fa-ellipsis-h"></i></button>
+              </div>
+              <div class="stat-card-value" id="activeShops">0</div>
+              <div class="stat-card-sub">live shops</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Inquiries</span>
+                <button class="stat-card-icon"><i class="fas fa-ellipsis-h"></i></button>
+              </div>
+              <div class="stat-card-value" id="totalInquiries">0</div>
+              <div class="stat-card-sub">messages</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Reviews</span>
+                <button class="stat-card-icon"><i class="fas fa-ellipsis-h"></i></button>
+              </div>
+              <div class="stat-card-value" id="totalTestimonials">0</div>
+              <div class="stat-card-sub">testimonials</div>
+            </div>
+          </div>
+
+          <!-- MIDDLE ROW: AGENDA + TASKS OVERVIEW -->
+          <div class="dashboard-row">
+            <!-- AGENDA -->
+            <div class="card agenda-card">
+              <div class="card-header">
+                <div>
+                  <h3>Agenda</h3>
+                  <p class="card-sub" id="agendaDate">Today</p>
+                </div>
+                <div class="agenda-nav">
+                  <button class="agenda-nav-btn" id="agendaPrev"><i class="fas fa-chevron-left"></i></button>
+                  <button class="agenda-nav-btn agenda-today" id="agendaToday">Today</button>
+                  <button class="agenda-nav-btn" id="agendaNext"><i class="fas fa-chevron-right"></i></button>
+                </div>
+              </div>
+              <div class="agenda-list" id="agendaList">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+
+            <!-- TASKS OVERVIEW -->
+            <div class="card tasks-overview-card">
+              <div class="card-header">
+                <div>
+                  <h3>Tasks overview</h3>
+                  <p class="card-sub" id="tasksOverviewSub">0 tasks in total</p>
+                </div>
+              </div>
+              <div class="tasks-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill progress-open" id="progressOpen" style="width:0%"></div>
+                  <div class="progress-fill progress-done" id="progressDone" style="width:0%"></div>
+                </div>
+                <div class="progress-legend">
+                  <div class="legend-item">
+                    <span class="legend-dot dot-open"></span>
+                    <span>Open</span>
+                    <strong id="tasksOpenCount">0</strong>
+                    <span class="legend-pct" id="tasksOpenPct">0%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot dot-done"></span>
+                    <span>Completed</span>
+                    <strong id="tasksDoneCount">0</strong>
+                    <span class="legend-pct" id="tasksDonePct">0%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot dot-overdue"></span>
+                    <span>Overdue</span>
+                    <strong id="tasksOverdueCount">0</strong>
+                    <span class="legend-pct" id="tasksOverduePct">0%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RECENT ACTIVITY -->
+          <div class="card activity-card">
+            <div class="card-header">
+              <div>
+                <h3>Recent activity</h3>
+                <p class="card-sub">Latest updates across shops, inquiries, and reviews</p>
+              </div>
+            </div>
+            <div class="activity-list" id="activityList">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== SHOPS TAB ========== -->
+        <div class="admin-tab" id="tab-shops">
+          <div class="tab-header">
+            <h2>Shops</h2>
+            <button class="btn btn-primary" id="addShopBtn"><i class="fas fa-plus"></i> Add Shop</button>
+          </div>
+          <div class="search-filter-bar">
+            <div class="search-bar-sm">
+              <i class="fas fa-search"></i>
+              <input type="text" id="shopSearch" placeholder="Search shops...">
+            </div>
+            <select id="shopStatusFilter" class="filter-select">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Shop Name</th>
+                  <th>Owner</th>
+                  <th>Category</th>
+                  <th>Phone</th>
+                  <th>Plan</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="shopsTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========== ANALYTICS TAB ========== -->
+        <div class="admin-tab" id="tab-analytics">
+          <h2>Analytics</h2>
+          <div class="analytics-grid">
+            <div class="card">
+              <h3>Shops by Category</h3>
+              <div id="analyticsCategories" class="analytics-list"></div>
+            </div>
+            <div class="card">
+              <h3>Shops by Plan</h3>
+              <div id="analyticsPlans" class="analytics-list"></div>
+            </div>
+            <div class="card">
+              <h3>Recent Signups (Last 7 Days)</h3>
+              <div id="analyticsSignups" class="analytics-list"></div>
+            </div>
+            <div class="card">
+              <h3>Inquiries by Category</h3>
+              <div id="analyticsInquiries" class="analytics-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== CUSTOMERS TAB ========== -->
+        <div class="admin-tab" id="tab-customers">
+          <h2>Customers</h2>
+          <div class="card">
+            <p class="card-sub">All shop owners who have listed their businesses</p>
+            <div class="table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Owner</th>
+                    <th>Shop</th>
+                    <th>Category</th>
+                    <th>Phone</th>
+                    <th>Joined</th>
+                  </tr>
+                </thead>
+                <tbody id="customersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== CATEGORIES TAB ========== -->
+        <div class="admin-tab" id="tab-categories">
+          <div class="tab-header">
+            <h2>Categories</h2>
+            <button class="btn btn-primary" id="addCategoryBtn"><i class="fas fa-plus"></i> Add Category</button>
+          </div>
+          <div class="categories-grid" id="categoriesGrid"></div>
+        </div>
+
+        <!-- ========== INQUIRIES TAB ========== -->
+        <div class="admin-tab" id="tab-inquiries">
+          <h2>Inquiries</h2>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Shop Name</th>
+                  <th>Owner</th>
+                  <th>Phone</th>
+                  <th>Category</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inquiriesTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========== TASKS TAB ========== -->
+        <div class="admin-tab" id="tab-tasks">
+          <div class="tab-header">
+            <h2>Tasks</h2>
+            <button class="btn btn-primary" id="addTaskBtn"><i class="fas fa-plus"></i> Add Task</button>
+          </div>
+          <div class="tasks-list" id="tasksList"></div>
+        </div>
+
+        <!-- ========== CALENDAR TAB ========== -->
+        <div class="admin-tab" id="tab-calendar">
+          <div class="tab-header">
+            <h2>Calendar</h2>
+            <div class="agenda-nav">
+              <button class="agenda-nav-btn" id="calPrev"><i class="fas fa-chevron-left"></i></button>
+              <span class="calendar-month" id="calMonth"></span>
+              <button class="agenda-nav-btn" id="calNext"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
+        <!-- ========== NOTES TAB ========== -->
+        <div class="admin-tab" id="tab-notes">
+          <div class="tab-header">
+            <h2>Notes</h2>
+            <button class="btn btn-primary" id="addNoteBtn"><i class="fas fa-plus"></i> Add Note</button>
+          </div>
+          <div class="notes-grid" id="notesGrid"></div>
+        </div>
+
+        <!-- ========== TESTIMONIALS TAB ========== -->
+        <div class="admin-tab" id="tab-testimonials-mgmt">
+          <div class="tab-header">
+            <h2>Testimonials</h2>
+            <button class="btn btn-primary" id="addTestimonialBtn"><i class="fas fa-plus"></i> Add Review</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Shop</th>
+                  <th>Rating</th>
+                  <th>Review</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="testimonialsTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========== SETTINGS TAB ========== -->
+        <div class="admin-tab" id="tab-settings">
+          <h2>Settings</h2>
+          <div class="settings-grid">
+            <div class="card settings-card">
+              <h3><i class="fas fa-key"></i> Change Password</h3>
+              <form id="changePasswordForm">
+                <div class="form-group">
+                  <label>Current Password</label>
+                  <input type="password" id="currentPass" required>
+                </div>
+                <div class="form-group">
+                  <label>New Password</label>
+                  <input type="password" id="newPass" required>
+                </div>
+                <div class="form-group">
+                  <label>Confirm New Password</label>
+                  <input type="password" id="confirmPass" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </form>
+            </div>
+            <div class="card settings-card danger">
+              <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+              <p>Reset all data to default. This cannot be undone.</p>
+              <button class="btn btn-danger" id="resetDataBtn">Reset All Data</button>
+            </div>
+            <div class="card settings-card" style="grid-column: 1 / -1;">
+              <h3><i class="fas fa-bullhorn"></i> Send Announcement</h3>
+              <p>Broadcast a message to all Discord channels</p>
+              <form id="announcementForm">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="announceTitle" placeholder="Announcement title" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Color</label>
+                    <select id="announceColor">
+                      <option value="purple">Purple</option>
+                      <option value="green">Green</option>
+                      <option value="blue">Blue</option>
+                      <option value="orange">Orange</option>
+                      <option value="red">Red</option>
+                      <option value="teal">Teal</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Message</label>
+                  <textarea id="announceMessage" rows="3" placeholder="Write your announcement..." required></textarea>
+                </div>
+                <div style="display:flex;gap:10px;">
+                  <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Broadcast to All Channels</button>
+                  <button type="button" class="btn btn-ghost" id="testDiscordBtn"><i class="fas fa-vial"></i> Test Bot</button>
+                </div>
+              </form>
+            </div>
+           </div>
+        </div>
+
+        <!-- ========== ANNOUNCEMENTS TAB ========== -->
+        <div class="admin-tab" id="tab-announcements">
+          <div class="tab-header">
+            <h2>Announcements</h2>
+          </div>
+          <div class="card" style="max-width:700px;">
+            <h3 style="margin-bottom:16px;"><i class="fas fa-bullhorn" style="color:var(--primary);"></i> Broadcast to All Discord Channels</h3>
+            <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:20px;">Send a message to all 13 configured Discord channels at once.</p>
+            <form id="announcementFormTab">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Title</label>
+                  <input type="text" id="announceTitleTab" placeholder="e.g. System Update" required>
+                </div>
+                <div class="form-group">
+                  <label>Color</label>
+                  <select id="announceColorTab">
+                    <option value="purple">Purple</option>
+                    <option value="green">Green</option>
+                    <option value="blue">Blue</option>
+                    <option value="orange">Orange</option>
+                    <option value="red">Red</option>
+                    <option value="teal">Teal</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Message</label>
+                <textarea id="announceMessageTab" rows="4" placeholder="Write your announcement message here..." required></textarea>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Broadcast Now</button>
+                <button type="button" class="btn btn-ghost" id="testDiscordBtnTab"><i class="fas fa-vial"></i> Test Bot Connection</button>
+              </div>
+            </form>
+          </div>
+          <div class="card" style="max-width:700px;margin-top:16px;">
+            <h3 style="margin-bottom:12px;"><i class="fas fa-list" style="color:var(--green);"></i> Configured Channels</h3>
+            <div id="channelList" style="display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ========== MODALS ========== -->
+
+  <!-- SHOP MODAL -->
+  <div class="modal-overlay" id="shopFormModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="shopFormTitle">Add New Shop</h2>
+        <button class="modal-close" id="shopFormClose">&times;</button>
+      </div>
+      <form id="shopForm">
+        <input type="hidden" id="editShopId">
+        <div class="form-row">
+          <div class="form-group"><label>Shop Name *</label><input type="text" id="sf_name" required></div>
+          <div class="form-group"><label>Owner Name *</label><input type="text" id="sf_owner" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Category *</label><select id="sf_category" required><option value="">Select</option></select></div>
+          <div class="form-group"><label>Phone *</label><input type="tel" id="sf_phone" required></div>
+        </div>
+        <div class="form-group"><label>Address *</label><input type="text" id="sf_address" required></div>
+        <div class="form-group"><label>Description</label><textarea id="sf_description" rows="3"></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Image URL</label><input type="url" id="sf_image" placeholder="https://..."></div>
+          <div class="form-group"><label>Status</label><select id="sf_status"><option value="active">Active</option><option value="pending">Pending</option><option value="inactive">Inactive</option></select></div>
+        </div>
+        <div class="form-group"><label>Plan</label><select id="sf_plan"><option value="basic">Basic - ₹99</option><option value="pro">Pro - ₹299</option><option value="enterprise">Enterprise - ₹499</option></select></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="shopFormCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Shop</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CATEGORY MODAL -->
+  <div class="modal-overlay" id="categoryFormModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="categoryFormTitle">Add Category</h2>
+        <button class="modal-close" id="categoryFormClose">&times;</button>
+      </div>
+      <form id="categoryForm">
+        <input type="hidden" id="editCategoryId">
+        <div class="form-group"><label>Category Name *</label><input type="text" id="cf_name" required></div>
+        <div class="form-group"><label>Icon (FA class)</label><input type="text" id="cf_icon" placeholder="fas fa-utensils"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="categoryFormCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TESTIMONIAL MODAL -->
+  <div class="modal-overlay" id="testimonialFormModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="testimonialFormTitle">Add Testimonial</h2>
+        <button class="modal-close" id="testimonialFormClose">&times;</button>
+      </div>
+      <form id="testimonialForm">
+        <input type="hidden" id="editTestimonialId">
+        <div class="form-row">
+          <div class="form-group"><label>Name *</label><input type="text" id="tf_name" required></div>
+          <div class="form-group"><label>Shop *</label><input type="text" id="tf_shop" required></div>
+        </div>
+        <div class="form-group"><label>Rating *</label><select id="tf_rating" required><option value="5">5 Stars</option><option value="4">4 Stars</option><option value="3">3 Stars</option><option value="2">2 Stars</option><option value="1">1 Star</option></select></div>
+        <div class="form-group"><label>Review *</label><textarea id="tf_review" rows="3" required></textarea></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="testimonialFormCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TASK MODAL -->
+  <div class="modal-overlay" id="taskFormModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="taskFormTitle">Add Task</h2>
+        <button class="modal-close" id="taskFormClose">&times;</button>
+      </div>
+      <form id="taskForm">
+        <input type="hidden" id="editTaskId">
+        <div class="form-group"><label>Task Title *</label><input type="text" id="tf_title" required></div>
+        <div class="form-group"><label>Description</label><textarea id="tf_desc" rows="2"></textarea></div>
+        <div class="form-group"><label>Priority</label><select id="tf_priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+        <div class="form-group"><label>Due Date</label><input type="date" id="tf_due"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="taskFormCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- NOTE MODAL -->
+  <div class="modal-overlay" id="noteFormModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="noteFormTitle">Add Note</h2>
+        <button class="modal-close" id="noteFormClose">&times;</button>
+      </div>
+      <form id="noteForm">
+        <input type="hidden" id="editNoteId">
+        <div class="form-group"><label>Title *</label><input type="text" id="nf_title" required></div>
+        <div class="form-group"><label>Content</label><textarea id="nf_content" rows="4"></textarea></div>
+        <div class="form-group">
+          <label>Color</label>
+          <div class="color-picker">
+            <label class="color-opt"><input type="radio" name="noteColor" value="#6c5ce7" checked><span style="background:#6c5ce7"></span></label>
+            <label class="color-opt"><input type="radio" name="noteColor" value="#00b894"><span style="background:#00b894"></span></label>
+            <label class="color-opt"><input type="radio" name="noteColor" value="#e17055"><span style="background:#e17055"></span></label>
+            <label class="color-opt"><input type="radio" name="noteColor" value="#fdcb6e"><span style="background:#fdcb6e"></span></label>
+            <label class="color-opt"><input type="radio" name="noteColor" value="#74b9ff"><span style="background:#74b9ff"></span></label>
+            <label class="color-opt"><input type="radio" name="noteColor" value="#fd79a8"><span style="background:#fd79a8"></span></label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="noteFormCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal modal-sm confirm-modal">
+      <div class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <h3 id="confirmTitle">Are you sure?</h3>
+      <p id="confirmMessage">This action cannot be undone.</p>
+      <div class="confirm-actions">
+        <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
+        <button class="btn btn-danger" id="confirmOk">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FORGOT PASSWORD MODAL ========== -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Reset Password</h2>
+        <button class="modal-close" id="forgotClose">&times;</button>
+      </div>
+      <div class="forgot-form" id="forgotFormStep1">
+        <div class="forgot-icon"><i class="fas fa-envelope"></i></div>
+        <p class="forgot-desc">Enter your registered email or username and we'll send you a reset link.</p>
+        <div class="form-group">
+          <label>Email or Username</label>
+          <input type="text" id="forgotEmail" placeholder="Enter your email or username">
+        </div>
+        <button class="btn btn-primary btn-full" id="forgotSendBtn">
+          <i class="fas fa-paper-plane"></i> Send Reset Link
+        </button>
+      </div>
+      <div class="forgot-form" id="forgotFormStep2" style="display:none;">
+        <div class="forgot-icon success"><i class="fas fa-check-circle"></i></div>
+        <p class="forgot-desc">Reset link sent! Check your inbox and follow the instructions to reset your password.</p>
+        <button class="btn btn-primary btn-full" id="forgotDoneBtn">Done</button>
+      </div>
+      <div class="forgot-form" id="forgotFormStep3" style="display:none;">
+        <div class="forgot-icon"><i class="fas fa-key"></i></div>
+        <p class="forgot-desc">Enter your new password below.</p>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="forgotNewPass" placeholder="Enter new password">
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" id="forgotConfirmPass" placeholder="Confirm new password">
+        </div>
+        <button class="btn btn-primary btn-full" id="forgotResetBtn">
+          <i class="fas fa-lock"></i> Reset Password
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

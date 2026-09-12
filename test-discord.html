@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord Bot Tester</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a2e; color: #eee; font-family: 'Segoe UI', sans-serif; min-height: 100vh; padding: 40px 20px; }
+    h1 { text-align: center; font-size: 2rem; margin-bottom: 10px; color: #6c5ce7; }
+    .subtitle { text-align: center; color: #888; margin-bottom: 30px; font-size: 0.9rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; }
+    .card { background: #16213e; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; border: 1px solid #0f3460; transition: transform 0.2s; }
+    .card:hover { transform: translateY(-2px); }
+    .card h3 { font-size: 1rem; color: #ddd; display: flex; align-items: center; gap: 8px; }
+    .card p { font-size: 0.75rem; color: #888; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+    .badge.create { background: #00b894; color: #000; }
+    .badge.update { background: #6c5ce7; color: #fff; }
+    .badge.delete { background: #e17055; color: #fff; }
+    button { padding: 12px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; color: #fff; }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-green { background: #00b894; }
+    .btn-blue { background: #6c5ce7; }
+    .btn-orange { background: #e17055; }
+    .btn-pink { background: #fd79a8; }
+    .btn-teal { background: #00cec9; color: #000; }
+    .btn-red { background: #d63031; }
+    #status { text-align: center; margin-top: 24px; font-size: 0.85rem; color: #888; min-height: 20px; }
+    #status.sent { color: #00b894; }
+    #status.error { color: #e17055; }
+    .log { max-width: 1100px; margin: 30px auto 0; background: #0d1b2a; border-radius: 8px; padding: 16px; font-family: monospace; font-size: 0.75rem; max-height: 200px; overflow-y: auto; color: #aaa; }
+    .log .ok { color: #00b894; }
+    .log .fail { color: #e17055; }
+  </style>
+</head>
+<body>
+
+<h1>Discord Bot Tester</h1>
+<p class="subtitle">Click a button to trigger a Discord webhook notification</p>
+
+<div class="grid">
+
+  <!-- SHOP -->
+  <div class="card">
+    <h3>Shop Created <span class="badge create">CREATE</span></h3>
+    <p>Sends a "New Shop Listed" embed</p>
+    <button class="btn-green" onclick="run('shopCreated')">Send</button>
+  </div>
+
+  <div class="card">
+    <h3>Shop Updated <span class="badge update">UPDATE</span></h3>
+    <p>Sends a "Shop Updated" embed</p>
+    <button class="btn-blue" onclick="run('shopUpdated')">Send</button>
+  </div>
+
+  <div class="card">
+    <h3>Status Changed <span class="badge update">UPDATE</span></h3>
+    <p>Sends a "Status Changed" embed</p>
+    <button class="btn-orange" onclick="run('shopStatusChanged')">Send</button>
+  </div>
+
+  <div class="card">
+    <h3>Shop Deleted <span class="badge delete">DELETE</span></h3>
+    <p>Sends a "Shop Removed" embed</p>
+    <button class="btn-red" onclick="run('shopDeleted')">Send</button>
+  </div>
+
+  <!-- INQUIRY -->
+  <div class="card">
+    <h3>Inquiry Created <span class="badge create">CREATE</span></h3>
+    <p>Sends a "New Inquiry Received" embed</p>
+    <button class="btn-teal" onclick="run('inquiryCreated')">Send</button>
+  </div>
+
+  <div class="card">
+    <h3>Inquiry Deleted <span class="badge delete">DELETE</span></h3>
+    <p>Sends an "Inquiry Removed" embed</p>
+    <button class="btn-red" onclick="run('inquiryDeleted')">Send</button>
+  </div>
+
+  <!-- TESTIMONIAL -->
+  <div class="card">
+    <h3>Review Created <span class="badge create">CREATE</span></h3>
+    <p>Sends a "New Review Received" embed</p>
+    <button class="btn-pink" onclick="run('testimonialCreated')">Send</button>
+  </div>
+
+  <!-- TASK -->
+  <div class="card">
+    <h3>Task Created <span class="badge create">CREATE</span></h3>
+    <p>Sends a "New Task Created" embed</p>
+    <button class="btn-blue" onclick="run('taskCreated')">Send</button>
+  </div>
+
+  <div class="card">
+    <h3>Task Completed <span class="badge update">UPDATE</span></h3>
+    <p>Sends a "Task Completed" embed</p>
+    <button class="btn-green" onclick="run('taskCompleted')">Send</button>
+  </div>
+
+  <!-- CATEGORY -->
+  <div class="card">
+    <h3>Category Created <span class="badge create">CREATE</span></h3>
+    <p>Sends a "New Category Added" embed</p>
+    <button class="btn-pink" onclick="run('categoryCreated')">Send</button>
+  </div>
+
+  <!-- NOTE -->
+  <div class="card">
+    <h3>Note Created <span class="badge create">CREATE</span></h3>
+    <p>Sends a "New Note Added" embed</p>
+    <button class="btn-blue" onclick="run('noteCreated')">Send</button>
+  </div>
+
+  <!-- EVENT -->
+  <div class="card">
+    <h3>Event Created <span class="badge create">CREATE</span></h3>
+    <p>Sends a "New Event Scheduled" embed</p>
+    <button class="btn-teal" onclick="run('eventCreated')">Send</button>
+  </div>
+
+</div>
+
+<div style="max-width:1100px;margin:20px auto;text-align:center;">
+  <button style="background:#6c5ce7;padding:14px 40px;font-size:1rem;" onclick="runAll()">Trigger All (One by One)</button>
+</div>
+
+<!-- ANNOUNCEMENT SECTION -->
+<div style="max-width:1100px;margin:30px auto;background:#16213e;border-radius:12px;padding:24px;border:1px solid #0f3460;">
+  <h2 style="color:#8b5cf6;margin-bottom:16px;font-size:1.3rem;">📢 Send Announcement to ALL Channels</h2>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+    <input id="announceTitle" placeholder="Title" style="flex:1;min-width:200px;padding:12px;border-radius:8px;border:1px solid #0f3460;background:#0d1b2a;color:#eee;font-size:0.9rem;">
+    <select id="announceColor" style="padding:12px;border-radius:8px;border:1px solid #0f3460;background:#0d1b2a;color:#eee;font-size:0.9rem;">
+      <option value="purple">Purple</option>
+      <option value="green">Green</option>
+      <option value="blue">Blue</option>
+      <option value="orange">Orange</option>
+      <option value="red">Red</option>
+      <option value="teal">Teal</option>
+    </select>
+  </div>
+  <textarea id="announceMessage" placeholder="Write your announcement message..." rows="3" style="width:100%;padding:12px;border-radius:8px;border:1px solid #0f3460;background:#0d1b2a;color:#eee;font-size:0.9rem;resize:vertical;margin-bottom:12px;"></textarea>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <button style="background:#8b5cf6;padding:14px 32px;font-size:1rem;flex:1;" onclick="sendAnnouncement()">📢 Broadcast to All Channels</button>
+    <button style="background:#00cec9;color:#000;padding:14px 24px;font-size:0.9rem;" onclick="testBot()">🧪 Test Bot</button>
+  </div>
+</div>
+
+<div id="status"></div>
+<div class="log" id="log"></div>
+
+<script>
+const API = 'http://localhost:5000';
+
+const payloads = {
+  shopCreated: { method: 'POST', url: '/api/shops', body: { name: 'Test Shop', owner: 'Test Owner', category: 'Restaurant', phone: '9999999999', plan: 'pro', status: 'active', description: 'A test shop for Discord webhook testing' } },
+  shopUpdated: { method: 'POST', url: '/api/shops', body: { name: 'Update Me Shop', owner: 'Owner', category: 'Retail', phone: '8888888888', status: 'active' } },
+  shopStatusChanged: { method: 'POST', url: '/api/shops', body: { name: 'Status Shop', owner: 'Owner', category: 'Services', phone: '7777777777', status: 'pending' } },
+  shopDeleted: { method: 'POST', url: '/api/shops', body: { name: 'Delete Me Shop', owner: 'Owner', category: 'Other', phone: '6666666666', status: 'active' } },
+  inquiryCreated: { method: 'POST', url: '/api/inquiries', body: { shopName: 'Inquiry Shop', ownerName: 'Inquiry Owner', phone: '5555555555', category: 'Restaurant', description: 'Want to list my shop' } },
+  inquiryDeleted: { method: 'POST', url: '/api/inquiries', body: { shopName: 'Delete Inquiry', ownerName: 'Owner', phone: '4444444444' } },
+  testimonialCreated: { method: 'POST', url: '/api/testimonials', body: { name: 'Happy Customer', shop: 'Test Shop', rating: 5, review: 'Amazing service! Highly recommend to everyone.' } },
+  taskCreated: { method: 'POST', url: '/api/tasks', body: { title: 'Follow up with vendor', description: 'Call the new shop owner', priority: 'high', dueDate: '2026-09-15' } },
+  taskCompleted: { method: 'POST', url: '/api/tasks', body: { title: 'Complete Me Task', priority: 'medium' } },
+  categoryCreated: { method: 'POST', url: '/api/categories', body: { name: 'Electronics', icon: 'fas fa-laptop' } },
+  noteCreated: { method: 'POST', url: '/api/notes', body: { title: 'Important Note', content: 'Remember to update the dashboard', color: '#6c5ce7' } },
+  eventCreated: { method: 'POST', url: '/api/events', body: { title: 'Team Standup', date: '2026-09-15', time: '10:00', type: 'meeting' } }
+};
+
+function log(msg, ok = true) {
+  const el = document.getElementById('log');
+  const cls = ok ? 'ok' : 'fail';
+  el.innerHTML += `<div class="${cls}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = type;
+}
+
+async function run(name) {
+  setStatus(`Sending ${name}...`, '');
+  const config = payloads[name];
+  try {
+    if (name === 'shopUpdated') {
+      // create then update
+      const createRes = await fetch(`${API}/api/shops`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Update Target', owner: 'Owner', category: 'Test', phone: '1111111111', status: 'active' }) });
+      const created = await createRes.json();
+      const res = await fetch(`${API}/api/shops/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Updated Shop Name', owner: 'Updated Owner' }) });
+      if (!res.ok) throw new Error(`PUT failed: ${res.status}`);
+      log(`✅ ${name} - sent successfully`);
+    } else if (name === 'shopStatusChanged') {
+      const createRes = await fetch(`${API}/api/shops`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Status Target', owner: 'Owner', category: 'Test', phone: '2222222222', status: 'pending' }) });
+      const created = await createRes.json();
+      const res = await fetch(`${API}/api/shops/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'active' }) });
+      if (!res.ok) throw new Error(`PUT failed: ${res.status}`);
+      log(`✅ ${name} - sent successfully`);
+    } else if (name === 'shopDeleted') {
+      const createRes = await fetch(`${API}/api/shops`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Delete Target', owner: 'Owner', category: 'Test', phone: '3333333333', status: 'active' }) });
+      const created = await createRes.json();
+      const res = await fetch(`${API}/api/shops/${created._id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`DELETE failed: ${res.status}`);
+      log(`✅ ${name} - sent successfully`);
+    } else if (name === 'inquiryDeleted') {
+      const createRes = await fetch(`${API}/api/inquiries`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shopName: 'Delete Inquiry', ownerName: 'Owner', phone: '4444444444' }) });
+      const created = await createRes.json();
+      const res = await fetch(`${API}/api/inquiries/${created._id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`DELETE failed: ${res.status}`);
+      log(`✅ ${name} - sent successfully`);
+    } else if (name === 'taskCompleted') {
+      const createRes = await fetch(`${API}/api/tasks`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'Complete Target Task', priority: 'medium' }) });
+      const created = await createRes.json();
+      const res = await fetch(`${API}/api/tasks/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ done: true }) });
+      if (!res.ok) throw new Error(`PUT failed: ${res.status}`);
+      log(`✅ ${name} - sent successfully`);
+    } else {
+      // Simple POST
+      const res = await fetch(`${API}${config.url}`, { method: config.method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config.body) });
+      if (!res.ok) throw new Error(`POST failed: ${res.status}`);
+      log(`✅ ${name} - sent successfully`);
+    }
+    setStatus(`✅ ${name} sent!`, 'sent');
+  } catch (err) {
+    log(`❌ ${name} - ${err.message}`, false);
+    setStatus(`❌ ${name} failed: ${err.message}`, 'error');
+  }
+}
+
+const allKeys = Object.keys(payloads);
+
+async function runAll() {
+  for (const key of allKeys) {
+    await run(key);
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  setStatus('✅ All notifications sent!', 'sent');
+}
+
+async function sendAnnouncement() {
+  const title = document.getElementById('announceTitle').value.trim();
+  const message = document.getElementById('announceMessage').value.trim();
+  const color = document.getElementById('announceColor').value;
+  if (!title || !message) { setStatus('❌ Please enter title and message', 'error'); return; }
+  setStatus('📢 Broadcasting to all channels...', '');
+  try {
+    const res = await fetch(`${API}/api/announcements`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, message, color })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    log(`✅ Announcement "${title}" sent to all channels`);
+    setStatus('✅ Announcement broadcasted!', 'sent');
+    document.getElementById('announceTitle').value = '';
+    document.getElementById('announceMessage').value = '';
+  } catch (err) {
+    log(`❌ Announcement failed: ${err.message}`, false);
+    setStatus(`❌ ${err.message}`, 'error');
+  }
+}
+
+async function testBot() {
+  setStatus('🧪 Testing bot...', '');
+  try {
+    const res = await fetch(`${API}/api/announcements/test`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    log('✅ Test notification sent to bot-tester-feed');
+    setStatus('✅ Bot test successful!', 'sent');
+  } catch (err) {
+    log(`❌ Test failed: ${err.message}`, false);
+    setStatus(`❌ ${err.message}`, 'error');
+  }
+}
+</script>
+</body>
+</html>
