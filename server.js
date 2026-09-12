@@ -38,13 +38,13 @@ app.use(session({
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplocal',
-    ttl: 24 * 60 * 60
+    ttl: 24 * 60 * 60,
+    collectionName: 'sessions'
   }),
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production' || process.env.RAILWAY_STATIC_URL
+    sameSite: 'lax'
   }
 }));
 app.use(passport.initialize());
@@ -55,9 +55,13 @@ require('./config/passport')(passport);
 
 app.use(express.static(path.join(__dirname)));
 
-// MongoDB Connection
+// MongoDB Connection + Seed
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplocal')
-  .then(() => console.log('✅ Connected to MongoDB'))
+  .then(async () => {
+    console.log('✅ Connected to MongoDB');
+    const seedData = require('./seed');
+    await seedData();
+  })
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Auth middleware
@@ -86,10 +90,6 @@ app.use('/api/announcements', require('./routes/announcements'));
 // Make auth middleware available to routes
 app.locals.ensureAuth = ensureAuth;
 app.locals.ensureAdmin = ensureAdmin;
-
-// Seed default data
-const seedData = require('./seed');
-seedData();
 
 // Serve frontend - specific routes only
 app.get('/admin', (req, res) => {
