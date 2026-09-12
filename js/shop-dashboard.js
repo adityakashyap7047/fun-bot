@@ -171,6 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = document.getElementById('ob_name').value.trim();
     const shop = document.getElementById('ob_shop').value.trim();
     const phone = document.getElementById('ob_phone').value.trim();
+    const address = document.getElementById('ob_address').value.trim();
+    const image = document.getElementById('ob_image').value.trim();
     const pass = document.getElementById('ob_password').value;
     const confirm = document.getElementById('ob_confirm').value;
 
@@ -178,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!shop) { shakeInput('ob_shop'); return; }
     if (!obData.category) { document.getElementById('signupError').innerHTML = '<i class="fas fa-exclamation-circle"></i> Please select a category.'; document.getElementById('signupError').classList.add('show'); return; }
     if (!phone) { shakeInput('ob_phone'); return; }
+    if (!address) { shakeInput('ob_address'); return; }
     if (!pass || pass.length < 4) { shakeInput('ob_password'); return; }
     if (pass !== confirm) { shakeInput('ob_confirm'); return; }
 
@@ -192,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const regData = await regRes.json();
       if (!regRes.ok) throw new Error(regData.error || 'Registration failed');
-      await DB.addShop({ name: shop, owner: name, category: obData.category, phone, address: '', description: '', image: '', status: 'active', plan: 'basic' });
+      await DB.addShop({ name: shop, owner: name, category: obData.category, phone, address, description: '', image, status: 'active', plan: 'basic' });
       signupFormWrap.style.display = 'none';
       signupSuccess.style.display = 'flex';
       e.target.reset();
