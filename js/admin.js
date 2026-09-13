@@ -159,7 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (!phone) { shakeInput('ob_phone'); return; }
-    if (!pass || pass.length < 4) { shakeInput('ob_password'); return; }
+    if (!pass || pass.length < 8) { shakeInput('ob_password'); document.getElementById('signupError').innerHTML = '<i class="fas fa-exclamation-circle"></i> Password must be at least 8 characters with uppercase, lowercase, and a number.'; document.getElementById('signupError').classList.add('show'); return; }
+    if (!/[A-Z]/.test(pass) || !/[a-z]/.test(pass) || !/[0-9]/.test(pass)) { shakeInput('ob_password'); document.getElementById('signupError').innerHTML = '<i class="fas fa-exclamation-circle"></i> Password must contain uppercase, lowercase, and a number.'; document.getElementById('signupError').classList.add('show'); return; }
     if (pass !== confirm) { shakeInput('ob_confirm'); return; }
 
     document.getElementById('signupError')?.classList.remove('show');
@@ -280,7 +281,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPass = document.getElementById('forgotNewPass').value;
     const confirmPass = document.getElementById('forgotConfirmPass').value;
     const resetUser = sessionStorage.getItem('sl_reset_user');
-    if (newPass.length < 4) { toast('Min 4 characters', 'error'); return; }
+    if (newPass.length < 8) { toast('Min 8 characters required', 'error'); return; }
+    if (!/[A-Z]/.test(newPass) || !/[a-z]/.test(newPass) || !/[0-9]/.test(newPass)) { toast('Password must contain uppercase, lowercase, and a number', 'error'); return; }
     if (newPass !== confirmPass) { toast('Passwords do not match', 'error'); return; }
 
     try {
@@ -744,8 +746,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('resetDataBtn')?.addEventListener('click', async () => {
-    if (await confirmDialog('Reset Data', 'Reset all data to defaults?')) {
-      toast('Data reset - restart server to seed');
+    if (await confirmDialog('Reset Data', 'Reset all data to defaults? This will clear everything and re-seed.')) {
+      try {
+        await DB.resetData();
+        toast('Data reset successfully! Refreshing...');
+        setTimeout(() => location.reload(), 1500);
+      } catch (err) {
+        toast('Failed to reset data: ' + err.message, 'error');
+      }
     }
   });
 

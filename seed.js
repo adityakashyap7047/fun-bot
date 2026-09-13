@@ -19,8 +19,14 @@ async function seedData() {
     }
 
     if (settingCount === 0) {
-      await Setting.create({ username: 'admin', password: 'Adminaditya123' });
-      console.log('Admin account created (admin / Adminaditya123)');
+      const adminUser = process.env.ADMIN_USERNAME || 'admin';
+      const adminPass = process.env.ADMIN_PASSWORD;
+      if (!adminPass) {
+        console.error('❌ ADMIN_PASSWORD not set in .env file!');
+        return;
+      }
+      await Setting.create({ username: adminUser, password: adminPass });
+      console.log(`Admin account created (${adminUser})`);
     }
 
     const shopCount = await Shop.countDocuments();

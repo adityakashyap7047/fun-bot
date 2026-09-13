@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopLocal - Find Shops Near You</title>
+  <meta name="description" content="Discover local shops on an interactive map. Search by shop name, location, or category.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">
+        <i class="fas fa-store"></i> Shop<span>Local</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="/">Home</a></li>
+        <li><a href="/map" class="active">Map</a></li>
+        <li><a href="/pricing">Pricing</a></li>
+      </ul>
+      <a href="shop.html" class="nav-btn"><i class="fas fa-user"></i> Login / Signup</a>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAP LAYOUT -->
+  <div class="map-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="map-sidebar" id="mapSidebar">
+      <div class="map-sidebar-header">
+        <h2><i class="fas fa-store"></i> Shops</h2>
+        <span class="shop-count" id="shopCount">0 shops</span>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="map-search">
+        <div class="map-search-input-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="shopSearchInput" placeholder="Search by shop name...">
+        </div>
+        <div class="map-search-input-wrap" style="margin-top:8px;">
+          <i class="fas fa-map-marker-alt"></i>
+          <input type="text" id="locationSearchInput" placeholder="Search by city (e.g., Katni)">
+        </div>
+        <button class="btn btn-ghost btn-sm" id="nearMeBtn" style="margin-top:8px;width:100%;">
+          <i class="fas fa-crosshairs"></i> Find Shops Near Me
+        </button>
+      </div>
+
+      <!-- CATEGORY FILTERS -->
+      <div class="category-filters" id="categoryFilters">
+        <button class="cat-filter active" data-category="all">All</button>
+        <button class="cat-filter" data-category="Food & Drinks"><i class="fas fa-utensils"></i> Food</button>
+        <button class="cat-filter" data-category="Fashion"><i class="fas fa-tshirt"></i> Fashion</button>
+        <button class="cat-filter" data-category="Grocery"><i class="fas fa-shopping-basket"></i> Grocery</button>
+        <button class="cat-filter" data-category="Beauty"><i class="fas fa-spa"></i> Beauty</button>
+        <button class="cat-filter" data-category="Services"><i class="fas fa-tools"></i> Services</button>
+        <button class="cat-filter" data-category="Electronics"><i class="fas fa-laptop"></i> Electronics</button>
+      </div>
+
+      <!-- SHOP LIST -->
+      <div class="shop-list" id="shopList">
+        <!-- Populated by JS -->
+      </div>
+    </aside>
+
+    <!-- MAP CONTAINER -->
+    <div class="map-container" id="mapContainer"></div>
+
+  </div>
+
+  <!-- MOBILE SIDEBAR TOGGLE -->
+  <button class="map-sidebar-toggle" id="sidebarToggle">
+    <i class="fas fa-list"></i>
+  </button>
+
+  <script src="js/data.js"></script>
+  <script src="js/map.js"></script>
+  <script>
+    if (typeof google === 'undefined' || !google.maps) {
+      window.initMap = function() {
+        document.getElementById('mapContainer').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-dim);text-align:center;padding:40px;"><i class="fas fa-map-marked-alt" style="font-size:3rem;margin-bottom:16px;color:var(--primary)"></i><h3 style="margin-bottom:8px">Map requires Google Maps API key</h3><p style="font-size:0.9rem;max-width:400px">Add your Google Maps API key to map.html to enable the interactive map. Shop listings are still available in the sidebar.</p></div>';
+      };
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap" onerror="window.initMap && window.initMap()"></script>
+</body>
+</html>

@@ -3,6 +3,8 @@ const router = express.Router();
 const passport = require('passport');
 const User = require('../models/User');
 const Setting = require('../models/Setting');
+const { ensureAuth } = require('../middleware/auth');
+const discord = require('../utils/discord');
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -21,6 +23,10 @@ router.post('/register', async (req, res) => {
     if (exists) return res.status(409).json({ error: 'Username already taken' });
 
     const user = await User.create({ username, name, shop, category, phone, password });
+
+    // Send onboarding notification
+    discord.onboardingCompleted({ ownerName: name, shopName: shop, category, phone });
+
     req.login(user, (err) => {
       if (err) return res.status(500).json({ error: 'Login after register failed' });
       res.status(201).json({ id: user._id, username: user.username, name: user.name, role: user.role });
@@ -68,19 +74,25 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
   else res.redirect('/shop');
 });
 
-// POST /api/auth/forgot-check — disabled for security
-router.post('/forgot-check', (req, res) => {
-  res.status(403).json({ error: 'Password reset is only available while logged in. Contact an administrator for assistance.' });
+// POST /api/auth/forgot-check — verify username exists
+router.post('/forgot-check', async (req, res) => {
+  try {
+    const { username } = req.body;
+    if (!username) return res.status(400).json({ error: 'Username is required' });
+
+    const user = await User.findOne({ username: username.toLowerCase() });
+    if (!user) return res.status(404).json({ error: 'No account found with that username' });
+
+    res.json({ ok: true, message: 'Account found' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-// POST /api/auth/reset-password — requires authentication
+// POST /api/auth/reset-password — requires authentication or forgot-password token
 router.post('/reset-password', async (req, res) => {
   try {
-    const { password, currentPassword } = req.body;
-
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: 'Please log in to reset your password' });
-    }
+    const { password, currentPassword, username } = req.body;
 
     if (!password || password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters' });
@@ -90,28 +102,43 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ error: 'Password must contain uppercase, lowercase, and a number' });
     }
 
-    if (!currentPassword) {
-      return res.status(400).json({ error: 'Current password is required' });
-    }
+    // If authenticated user changing their own password
+    if (req.isAuthenticated()) {
+      if (!currentPassword) {
+        return res.status(400).json({ error: 'Current password is required' });
+      }
 
-    if (req.user.role === 'admin') {
-      const settings = await Setting.findOne();
-      const valid = await settings.comparePassword(currentPassword);
+      if (req.user.role === 'admin') {
+        const settings = await Setting.findOne();
+        const valid = await settings.comparePassword(currentPassword);
+        if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
+        settings.password = password;
+        await settings.save();
+        return res.json({ ok: true });
+      }
+
+      const user = await User.findById(req.user._id);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      const valid = await user.comparePassword(currentPassword);
       if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
-      settings.password = password;
-      await settings.save();
+
+      user.password = password;
+      await user.save();
       return res.json({ ok: true });
     }
 
-    const user = await User.findById(req.user._id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    // Forgot password flow (unauthenticated) — requires username
+    if (username) {
+      const user = await User.findOne({ username: username.toLowerCase() });
+      if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const valid = await user.comparePassword(currentPassword);
-    if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
+      user.password = password;
+      await user.save();
+      return res.json({ ok: true });
+    }
 
-    user.password = password;
-    await user.save();
-    return res.json({ ok: true });
+    return res.status(401).json({ error: 'Please log in to reset your password' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

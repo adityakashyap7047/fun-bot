@@ -48,10 +48,13 @@ const DB = {
   async addTestimonial(data) { return api('/testimonials', { method: 'POST', body: JSON.stringify(data) }); },
   async updateTestimonial(id, data) { return api('/testimonials/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
   async deleteTestimonial(id) { return api('/testimonials/' + id, { method: 'DELETE' }); },
+  async getReplies(id) { return api('/testimonials/' + id + '/replies'); },
+  async addReply(id, reply) { return api('/testimonials/' + id + '/reply', { method: 'POST', body: JSON.stringify({ reply }) }); },
 
   // ========== INQUIRIES ==========
   async getInquiries() { return api('/inquiries'); },
   async addInquiry(data) { return api('/inquiries', { method: 'POST', body: JSON.stringify(data) }); },
+  async updateInquiry(id, data) { return api('/inquiries/' + id, { method: 'PUT', body: JSON.stringify(data) }); },
   async deleteInquiry(id) { return api('/inquiries/' + id, { method: 'DELETE' }); },
 
   // ========== TASKS ==========
@@ -74,5 +77,12 @@ const DB = {
 
   // ========== SETTINGS ==========
   async getSettings() { return api('/settings'); },
-  async updateSettings(data) { return api('/settings', { method: 'PUT', body: JSON.stringify(data) }); }
+  async updateSettings(data) { return api('/settings', { method: 'PUT', body: JSON.stringify(data) }); },
+
+  // ========== ANALYTICS ==========
+  async getShopAnalytics(shopId, days) { return api('/analytics/' + shopId + '?days=' + (days || 7)); },
+  async getAnalyticsOverview() { return api('/analytics/overview/all'); },
+
+  // ========== ADMIN ==========
+  async resetData() { return api('/admin/reset', { method: 'POST' }); }
 };

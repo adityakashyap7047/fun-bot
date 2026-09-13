@@ -1,15 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Testimonial = require('../models/Testimonial');
+const ReviewReply = require('../models/ReviewReply');
 const discord = require('../utils/discord');
 const { sanitizeObject, containsMongoOperator } = require('../utils/sanitize');
+const { ensureAuth } = require('../middleware/auth');
 
 const TESTIMONIAL_FIELDS = ['name', 'shop', 'rating', 'review'];
-
-function ensureAuth(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.status(401).json({ error: 'Please log in' });
-}
 
 // GET all testimonials (public)
 router.get('/', async (req, res) => {
@@ -18,6 +15,16 @@ router.get('/', async (req, res) => {
     res.json(testimonials);
   } catch (err) {
     res.status(500).json({ error: 'Failed to load testimonials' });
+  }
+});
+
+// GET replies for a testimonial
+router.get('/:id/replies', async (req, res) => {
+  try {
+    const replies = await ReviewReply.find({ testimonialId: req.params.id }).sort({ createdAt: 1 });
+    res.json(replies);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load replies' });
   }
 });
 
@@ -35,6 +42,29 @@ router.post('/', ensureAuth, async (req, res) => {
     res.status(201).json(testimonial);
   } catch (err) {
     res.status(400).json({ error: 'Failed to create testimonial' });
+  }
+});
+
+// POST reply to a testimonial (auth required)
+router.post('/:id/reply', ensureAuth, async (req, res) => {
+  try {
+    const { reply } = req.body;
+    if (!reply || !reply.trim()) {
+      return res.status(400).json({ error: 'Reply text is required' });
+    }
+
+    const testimonial = await Testimonial.findById(req.params.id);
+    if (!testimonial) return res.status(404).json({ error: 'Testimonial not found' });
+
+    const reviewReply = new ReviewReply({
+      testimonialId: req.params.id,
+      reply: reply.trim(),
+      repliedBy: req.user.name || req.user.username
+    });
+    await reviewReply.save();
+    res.status(201).json(reviewReply);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to create reply' });
   }
 });
 
@@ -59,6 +89,7 @@ router.delete('/:id', ensureAuth, async (req, res) => {
   try {
     const testimonial = await Testimonial.findByIdAndDelete(req.params.id);
     if (!testimonial) return res.status(404).json({ error: 'Testimonial not found' });
+    await ReviewReply.deleteMany({ testimonialId: req.params.id });
     res.json({ message: 'Testimonial deleted' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete testimonial' });

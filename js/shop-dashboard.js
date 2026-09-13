@@ -218,7 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!obData.category) { document.getElementById('signupError').innerHTML = '<i class="fas fa-exclamation-circle"></i> Please select a category.'; document.getElementById('signupError').classList.add('show'); return; }
     if (!phone) { shakeInput('ob_phone'); return; }
     if (!address) { shakeInput('ob_address'); return; }
-    if (!pass || pass.length < 4) { shakeInput('ob_password'); return; }
+    if (!pass || pass.length < 8) { shakeInput('ob_password'); document.getElementById('signupError').innerHTML = '<i class="fas fa-exclamation-circle"></i> Password must be at least 8 characters with uppercase, lowercase, and a number.'; document.getElementById('signupError').classList.add('show'); return; }
+    if (!/[A-Z]/.test(pass) || !/[a-z]/.test(pass) || !/[0-9]/.test(pass)) { shakeInput('ob_password'); document.getElementById('signupError').innerHTML = '<i class="fas fa-exclamation-circle"></i> Password must contain uppercase, lowercase, and a number.'; document.getElementById('signupError').classList.add('show'); return; }
     if (pass !== confirm) { shakeInput('ob_confirm'); return; }
 
     document.getElementById('signupError')?.classList.remove('show');
@@ -332,7 +333,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPass = document.getElementById('forgotNewPass').value;
     const confirmPass = document.getElementById('forgotConfirmPass').value;
     const resetUser = sessionStorage.getItem('sl_reset_user');
-    if (newPass.length < 4) { toast('Min 4 characters', 'error'); return; }
+    if (newPass.length < 8) { toast('Min 8 characters required', 'error'); return; }
+    if (!/[A-Z]/.test(newPass) || !/[a-z]/.test(newPass) || !/[0-9]/.test(newPass)) { toast('Password must contain uppercase, lowercase, and a number', 'error'); return; }
     if (newPass !== confirmPass) { toast('Passwords do not match', 'error'); return; }
     try {
       const res = await fetch('/api/auth/reset-password', {
@@ -420,10 +422,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ========== OVERVIEW ==========
-  function loadOverview(shop, plan) {
+  async function loadOverview(shop, plan) {
     const planDef = PLANS[plan] || PLANS.basic;
-    const views = Math.floor(Math.random() * 500) + 100;
-    const inquiries = Math.floor(Math.random() * 30) + 5;
+    const views = shop.views || 0;
+    const inquiries = shop.inquiryCount || 0;
     const rating = plan === 'enterprise' ? '4.8' : plan === 'pro' ? '4.5' : '4.2';
 
     // Plan banner
@@ -509,10 +511,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Edit modal
     document.getElementById('editShopBtn')?.addEventListener('click', () => {
+      document.getElementById('shopFormTitle').textContent = 'Edit Shop';
       document.getElementById('editShopId').value = shop._id;
       document.getElementById('sf_name').value = shop.name;
       document.getElementById('sf_description').value = shop.description || '';
       document.getElementById('sf_address').value = shop.address || '';
+      document.getElementById('sf_phone').value = shop.phone || '';
+      document.getElementById('sf_owner').value = shop.owner || '';
       document.getElementById('sf_image').value = shop.image || '';
       document.getElementById('sf_file').value = '';
       document.getElementById('sf-preview').style.display = 'none';
@@ -525,6 +530,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         switchImageTab('sf', 'upload');
       }
+      populateCats().then(() => {
+        document.getElementById('sf_category').value = shop.category || '';
+      });
       document.getElementById('shopFormModal').classList.add('active');
     });
   }
@@ -537,15 +545,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const isEnterprise = plan === 'enterprise';
+    const shareText = encodeURIComponent(`Check out ${currentShop.name} on ShopLocal! ${currentShop.description || ''}`);
+    const shareUrl = encodeURIComponent(window.location.origin);
     document.getElementById('promoContent').innerHTML = `
       <div class="promo-card">
         <h3><i class="fab fa-instagram" style="color:#E1306C"></i> Social Media Promotion</h3>
         <p>We'll promote your shop on our Instagram and Facebook pages. ${isEnterprise ? 'Unlimited posts per month.' : '2 posts per month included.'}</p>
         <div class="promo-social-grid">
-          <div class="promo-social-card" onclick="toast('Instagram post scheduled!','info')"><i class="fab fa-instagram" style="color:#E1306C"></i><h4>Instagram</h4><p>Feed post</p></div>
-          <div class="promo-social-card" onclick="toast('Facebook post scheduled!','info')"><i class="fab fa-facebook" style="color:#1877F2"></i><h4>Facebook</h4><p>Page post</p></div>
-          <div class="promo-social-card" onclick="toast('Twitter post scheduled!','info')"><i class="fab fa-twitter" style="color:#1DA1F2"></i><h4>Twitter</h4><p>Tweet</p></div>
-          ${isEnterprise ? '<div class="promo-social-card" onclick="toast(\'WhatsApp broadcast queued!\',\'info\')"><i class="fab fa-whatsapp" style="color:#25D366"></i><h4>WhatsApp</h4><p>Broadcast</p></div>' : ''}
+          <div class="promo-social-card" onclick="window.open('https://www.instagram.com/create/text/?url=${shareUrl}&caption=${shareText}', '_blank')"><i class="fab fa-instagram" style="color:#E1306C"></i><h4>Instagram</h4><p>Feed post</p></div>
+          <div class="promo-social-card" onclick="window.open('https://www.facebook.com/sharer/sharer.php?quote=${shareText}&u=${shareUrl}', '_blank')"><i class="fab fa-facebook" style="color:#1877F2"></i><h4>Facebook</h4><p>Share post</p></div>
+          <div class="promo-social-card" onclick="window.open('https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}', '_blank')"><i class="fab fa-twitter" style="color:#1DA1F2"></i><h4>Twitter</h4><p>Tweet</p></div>
+          ${isEnterprise ? `<div class="promo-social-card" onclick="window.open('https://wa.me/?text=${shareText}%20${shareUrl}', '_blank')"><i class="fab fa-whatsapp" style="color:#25D366"></i><h4>WhatsApp</h4><p>Share</p></div>` : ''}
         </div>
       </div>
       <div class="promo-card">
@@ -568,28 +578,48 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ========== ANALYTICS (Pro / Enterprise) ==========
-  function loadAnalytics(plan) {
+  async function loadAnalytics(plan) {
     if (plan === 'basic') {
       document.getElementById('analyticsContent').innerHTML = `<div class="locked-overlay"><i class="fas fa-lock"></i><h3>Pro Feature</h3><p>Upgrade to Pro to view detailed analytics about your shop performance, traffic sources, and conversion rates.</p><button class="btn btn-primary" onclick="openUpgradeModal()">Upgrade to Pro</button></div>`;
       return;
     }
 
     const isEnterprise = plan === 'enterprise';
-    const viewsData = [65,45,80,55,90,70,85];
-    const inquiriesData = [3,5,2,8,4,6,7];
+    let viewsData = [0, 0, 0, 0, 0, 0, 0];
+    let inquiriesData = [0, 0, 0, 0, 0, 0, 0];
+    let totalViews = 0;
+    let totalInquiries = 0;
+    let conversionRate = '0.0';
+
+    try {
+      const analytics = await DB.getShopAnalytics(currentShop._id, 7);
+      viewsData = analytics.daily.map(d => d.views);
+      inquiriesData = analytics.daily.map(d => d.inquiries);
+      totalViews = analytics.summary.totalViews;
+      totalInquiries = analytics.summary.totalInquiries;
+      conversionRate = analytics.summary.conversionRate;
+    } catch (e) {
+      // Fallback to shop-level data
+      totalViews = currentShop.views || 0;
+      totalInquiries = currentShop.inquiryCount || 0;
+    }
+
     const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const maxViews = Math.max(...viewsData, 1);
 
     document.getElementById('analyticsContent').innerHTML = `
       <div class="analytics-grid">
         <div class="analytics-card">
           <h4><i class="fas fa-eye" style="color:var(--primary);margin-right:6px"></i> Profile Views (Last 7 Days)</h4>
-          <div class="analytics-chart">${viewsData.map((h,i) => `<div class="analytics-chart-bar" data-value="${h} views" style="background:linear-gradient(to top,var(--primary),rgba(79,110,247,0.5));height:${h}%"></div>`).join('')}</div>
+          <div class="analytics-chart">${viewsData.map((h,i) => `<div class="analytics-chart-bar" data-value="${h} views" style="background:linear-gradient(to top,var(--primary),rgba(79,110,247,0.5));height:${(h/maxViews)*100}%"></div>`).join('')}</div>
           <div class="analytics-days">${days.map(d => `<span>${d}</span>`).join('')}</div>
+          <div style="text-align:center;margin-top:8px;font-size:0.85rem;color:var(--text-dim)">Total: ${totalViews} views</div>
         </div>
         <div class="analytics-card">
           <h4><i class="fas fa-envelope" style="color:var(--green);margin-right:6px"></i> Inquiries (Last 7 Days)</h4>
-          <div class="analytics-chart">${inquiriesData.map(h => `<div class="analytics-chart-bar" data-value="${h} inquiries" style="background:linear-gradient(to top,var(--green),rgba(34,181,115,0.5));height:${h*12}%"></div>`).join('')}</div>
+          <div class="analytics-chart">${inquiriesData.map(h => `<div class="analytics-chart-bar" data-value="${h} inquiries" style="background:linear-gradient(to top,var(--green),rgba(34,181,115,0.5));height:${(h/Math.max(...inquiriesData, 1))*100}%"></div>`).join('')}</div>
           <div class="analytics-days">${days.map(d => `<span>${d}</span>`).join('')}</div>
+          <div style="text-align:center;margin-top:8px;font-size:0.85rem;color:var(--text-dim)">Total: ${totalInquiries} inquiries</div>
         </div>
         <div class="analytics-card">
           <h4><i class="fas fa-chart-pie" style="color:var(--orange);margin-right:6px"></i> Traffic Sources</h4>
@@ -601,7 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="analytics-card">
           <h4><i class="fas fa-funnel-dollar" style="color:var(--green);margin-right:6px"></i> Conversion Rate</h4>
-          <div class="analytics-stat-big"><div class="value" style="color:var(--green)">4.2%</div><div class="label">views to inquiries</div></div>
+          <div class="analytics-stat-big"><div class="value" style="color:var(--green)">${conversionRate}%</div><div class="label">views to inquiries</div></div>
         </div>
         ${isEnterprise ? `
         <div class="analytics-card">
@@ -628,13 +658,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ========== REVIEWS (All Plans) ==========
   function loadReviews(shop, plan) {
-    DB.getTestimonials().then(testimonials => {
+    DB.getTestimonials().then(async (testimonials) => {
       const shopReviews = testimonials.filter(t => t.shop === shop.name);
       if (shopReviews.length === 0) {
         document.getElementById('reviewsContent').innerHTML = '<div class="empty-state"><i class="fas fa-star"></i><h3>No reviews yet</h3><p>When customers leave reviews, they will appear here.</p></div>';
         return;
       }
-      document.getElementById('reviewsContent').innerHTML = shopReviews.map(t => `
+
+      // Load replies for each review
+      const reviewsWithReplies = await Promise.all(shopReviews.map(async (t) => {
+        let replies = [];
+        try { replies = await DB.getReplies(t._id); } catch (e) {}
+        return { ...t, replies };
+      }));
+
+      document.getElementById('reviewsContent').innerHTML = reviewsWithReplies.map(t => `
         <div class="review-item">
           <div class="review-header">
             <div class="review-avatar">${t.name.charAt(0)}</div>
@@ -642,14 +680,43 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="review-stars">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
           <div class="review-text">${escapeHtml(t.review)}</div>
+          ${t.replies.length > 0 ? `
+            <div class="review-replies" style="margin-top:12px;padding-left:20px;border-left:2px solid var(--primary)">
+              ${t.replies.map(r => `
+                <div style="margin-bottom:8px">
+                  <div style="font-size:0.8rem;font-weight:600;color:var(--primary)">${escapeHtml(r.repliedBy)}</div>
+                  <div style="font-size:0.85rem;color:var(--text-dim)">${escapeHtml(r.reply)}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
           ${(plan === 'pro' || plan === 'enterprise') ? `
             <div style="margin-top:12px">
-              <button class="btn btn-ghost" style="font-size:0.8rem;padding:6px 12px" onclick="toast('Reply feature coming soon!','info')"><i class="fas fa-reply"></i> Reply</button>
+              <button class="btn btn-ghost" style="font-size:0.8rem;padding:6px 12px" onclick="replyToReview('${t._id}')"><i class="fas fa-reply"></i> Reply</button>
             </div>
           ` : ''}
         </div>
       `).join('');
     });
+  }
+
+  window.replyToReview = async function(reviewId) {
+    const reply = prompt('Enter your reply:');
+    if (!reply || !reply.trim()) return;
+    try {
+      await DB.addReply(reviewId, reply.trim());
+      toast('Reply posted!');
+      loadReviews(currentShop, currentShop.plan || 'basic');
+    } catch (err) {
+      toast('Failed to post reply', 'error');
+    }
+  };
+
+  async function populateCats() {
+    try {
+      const cats = await DB.getCategories();
+      document.getElementById('sf_category').innerHTML = '<option value="">Select</option>' + cats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+    } catch (e) {}
   }
 
   // ========== MULTI-SHOP (Enterprise Only) ==========
@@ -674,7 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('multiShopContent').innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
           <p style="color:var(--text-dim);font-size:0.9rem">${myShops.length}/5 shops listed</p>
-          ${myShops.length < 5 ? '<button class="btn btn-primary" onclick="toast(\'Add shop feature coming soon!\',\'info\')"><i class="fas fa-plus"></i> Add Shop</button>' : '<span style="font-size:0.8rem;color:var(--text-muted)"><i class="fas fa-info-circle"></i> Maximum 5 shops reached</span>'}
+          ${myShops.length < 5 ? '<button class="btn btn-primary" onclick="openAddShopModal()"><i class="fas fa-plus"></i> Add Shop</button>' : '<span style="font-size:0.8rem;color:var(--text-muted)"><i class="fas fa-info-circle"></i> Maximum 5 shops reached</span>'}
         </div>
         <div class="multi-shop-grid">
           ${myShops.map(shop => `
@@ -684,12 +751,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="multi-shop-info"><h3>${escapeHtml(shop.name)}</h3><p>${escapeHtml(shop.category)} · ${escapeHtml(shop.phone)}</p></div>
               </div>
               <div class="multi-shop-stats">
-                <div class="multi-shop-stat"><div class="val">${Math.floor(Math.random()*300)+50}</div><div class="lbl">Views</div></div>
-                <div class="multi-shop-stat"><div class="val">${Math.floor(Math.random()*20)+2}</div><div class="lbl">Inquiries</div></div>
+                <div class="multi-shop-stat"><div class="val">${shop.views || 0}</div><div class="lbl">Views</div></div>
+                <div class="multi-shop-stat"><div class="val">${shop.inquiryCount || 0}</div><div class="lbl">Inquiries</div></div>
                 <div class="multi-shop-stat"><div class="val">${shop.status}</div><div class="lbl">Status</div></div>
               </div>
               <div class="multi-shop-actions">
-                <button class="btn btn-ghost" style="flex:1;font-size:0.8rem" onclick="toast('Edit: ${shop.name}','info')"><i class="fas fa-pen"></i> Edit</button>
+                <button class="btn btn-ghost" style="flex:1;font-size:0.8rem" onclick="editMultiShop('${shop._id}')"><i class="fas fa-pen"></i> Edit</button>
                 <button class="btn btn-ghost" style="flex:1;font-size:0.8rem" onclick="window.open('index.html','_blank')"><i class="fas fa-eye"></i> View</button>
               </div>
             </div>
@@ -699,6 +766,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  window.openAddShopModal = async function() {
+    await populateCats();
+    document.getElementById('shopFormTitle').textContent = 'Add New Shop';
+    document.getElementById('editShopId').value = '';
+    document.getElementById('shopForm').reset();
+    document.getElementById('sf-preview').style.display = 'none';
+    document.getElementById('sf-upload-tab').querySelector('.file-upload-area').style.display = 'flex';
+    document.getElementById('shopFormModal').classList.add('active');
+  };
+
+  window.editMultiShop = async function(shopId) {
+    try {
+      const shop = await DB.getShop(shopId);
+      if (!shop) return;
+      await populateCats();
+      document.getElementById('shopFormTitle').textContent = 'Edit Shop';
+      document.getElementById('editShopId').value = shop._id;
+      document.getElementById('sf_name').value = shop.name;
+      document.getElementById('sf_description').value = shop.description || '';
+      document.getElementById('sf_address').value = shop.address || '';
+      document.getElementById('sf_phone').value = shop.phone || '';
+      document.getElementById('sf_owner').value = shop.owner || '';
+      document.getElementById('sf_image').value = shop.image || '';
+      document.getElementById('sf_category').value = shop.category || '';
+      document.getElementById('sf_file').value = '';
+      document.getElementById('sf-preview').style.display = 'none';
+      document.getElementById('sf-upload-tab').querySelector('.file-upload-area').style.display = 'flex';
+      if (shop.image) {
+        document.getElementById('sf-preview-img').src = shop.image;
+        document.getElementById('sf-preview').style.display = 'block';
+        document.getElementById('sf-upload-tab').querySelector('.file-upload-area').style.display = 'none';
+        switchImageTab('sf', 'upload');
+      }
+      document.getElementById('shopFormModal').classList.add('active');
+    } catch (err) {
+      toast('Failed to load shop', 'error');
+    }
+  };
+
   // ========== BRANDING (Enterprise Only) ==========
   function loadBranding(plan) {
     if (plan !== 'enterprise') {
@@ -706,30 +812,56 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const branding = currentShop.branding || {};
     document.getElementById('brandingContent').innerHTML = `
       <div class="card" style="margin-bottom:20px">
         <div class="card-header"><h3>Brand Preview</h3></div>
         <div class="branding-preview">
-          <div class="branding-preview-logo" id="brandLogo"><i class="${currentShop ? 'fas fa-store' : 'fas fa-store'}"></i></div>
+          <div class="branding-preview-logo" id="brandLogo" style="background:${branding.primaryColor || '#4f6ef7'}"><i class="${currentShop ? 'fas fa-store' : 'fas fa-store'}"></i></div>
           <div class="branding-preview-name" id="brandPreviewName">${currentShop?.name || 'My Shop'}</div>
-          <div class="branding-preview-tagline" id="brandPreviewTagline">Your tagline here</div>
+          <div class="branding-preview-tagline" id="brandPreviewTagline">${branding.tagline || 'Your tagline here'}</div>
         </div>
       </div>
       <div class="card">
         <div class="card-header"><h3>Customize Colors</h3></div>
         <div style="padding:24px">
           <div class="color-picker-grid">
-            <div class="color-picker-item"><label>Primary Color</label><input type="color" id="brandPrimary" value="#4f6ef7" onchange="document.getElementById('brandLogo').style.background=this.value"></div>
-            <div class="color-picker-item"><label>Accent Color</label><input type="color" id="brandAccent" value="#22b573"></div>
-            <div class="color-picker-item"><label>Background Color</label><input type="color" id="brandBg" value="#ffffff"></div>
-            <div class="color-picker-item"><label>Text Color</label><input type="color" id="brandText" value="#1a1a2e"></div>
+            <div class="color-picker-item"><label>Primary Color</label><input type="color" id="brandPrimary" value="${branding.primaryColor || '#4f6ef7'}" onchange="document.getElementById('brandLogo').style.background=this.value"></div>
+            <div class="color-picker-item"><label>Accent Color</label><input type="color" id="brandAccent" value="${branding.accentColor || '#22b573'}"></div>
+            <div class="color-picker-item"><label>Background Color</label><input type="color" id="brandBg" value="${branding.bgColor || '#ffffff'}"></div>
+            <div class="color-picker-item"><label>Text Color</label><input type="color" id="brandText" value="${branding.textColor || '#1a1a2e'}"></div>
           </div>
-          <div class="form-group" style="margin-top:20px"><label>Tagline</label><input type="text" id="brandTagline" placeholder="e.g., Best food in town!" oninput="document.getElementById('brandPreviewTagline').textContent=this.value || 'Your tagline here'"></div>
-          <button class="btn btn-primary" style="margin-top:12px" onclick="toast('Branding saved!','success')"><i class="fas fa-save"></i> Save Branding</button>
+          <div class="form-group" style="margin-top:20px"><label>Tagline</label><input type="text" id="brandTagline" value="${escapeHtml(branding.tagline || '')}" placeholder="e.g., Best food in town!" oninput="document.getElementById('brandPreviewTagline').textContent=this.value || 'Your tagline here'"></div>
+          <button class="btn btn-primary" style="margin-top:12px" onclick="saveBranding()"><i class="fas fa-save"></i> Save Branding</button>
         </div>
       </div>
     `;
   }
+
+  window.saveBranding = async function() {
+    if (!currentShop) return;
+    try {
+      await DB.updateShop(currentShop._id, {
+        branding: {
+          primaryColor: document.getElementById('brandPrimary').value,
+          accentColor: document.getElementById('brandAccent').value,
+          bgColor: document.getElementById('brandBg').value,
+          textColor: document.getElementById('brandText').value,
+          tagline: document.getElementById('brandTagline').value
+        }
+      });
+      toast('Branding saved!', 'success');
+      currentShop.branding = {
+        primaryColor: document.getElementById('brandPrimary').value,
+        accentColor: document.getElementById('brandAccent').value,
+        bgColor: document.getElementById('brandBg').value,
+        textColor: document.getElementById('brandText').value,
+        tagline: document.getElementById('brandTagline').value
+      };
+    } catch (err) {
+      toast('Failed to save branding', 'error');
+    }
+  };
 
   // ========== SUPPORT (Enterprise Only) ==========
   function loadSupport(plan) {
@@ -748,7 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <i class="fas fa-comments"></i>
           <h3>Live Chat</h3>
           <p>Chat with your dedicated account manager in real-time.</p>
-          <button class="btn btn-primary" onclick="toast('Connecting to account manager...','info')">Start Chat</button>
+          <button class="btn btn-primary" onclick="window.open('mailto:support@shoplocal.com?subject=Support Request - ${encodeURIComponent(currentShop?.name || '')}', '_blank')">Start Chat via Email</button>
         </div>
         <div class="support-card">
           <i class="fas fa-phone-alt"></i>
@@ -852,7 +984,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('upgradeClose')?.addEventListener('click', () => document.getElementById('upgradeModal').classList.remove('active'));
   document.getElementById('upgradeModal')?.addEventListener('click', (e) => { if (e.target.id === 'upgradeModal') document.getElementById('upgradeModal').classList.remove('active'); });
 
-  // ========== EDIT SHOP MODAL ==========
+  // ========== EDIT/ADD SHOP MODAL ==========
   document.getElementById('shopFormClose')?.addEventListener('click', () => document.getElementById('shopFormModal').classList.remove('active'));
   document.getElementById('shopFormCancel')?.addEventListener('click', () => document.getElementById('shopFormModal').classList.remove('active'));
   document.getElementById('shopFormModal')?.addEventListener('click', (e) => { if (e.target.id === 'shopFormModal') document.getElementById('shopFormModal').classList.remove('active'); });
@@ -860,19 +992,39 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('shopForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('editShopId').value;
-    let imageUrl = document.getElementById('sf_image').value.trim();
+    let imageUrl = document.getElementById('sf_image')?.value.trim() || '';
     const sfFile = document.getElementById('sf_file');
-    if (sfFile.files[0]) {
+    if (sfFile && sfFile.files[0]) {
       imageUrl = await uploadFile(sfFile);
     }
-    await DB.updateShop(id, {
+
+    const shopData = {
       name: document.getElementById('sf_name').value,
-      description: document.getElementById('sf_description').value,
-      address: document.getElementById('sf_address').value,
-      image: imageUrl || ''
-    });
+      category: document.getElementById('sf_category')?.value || '',
+      phone: document.getElementById('sf_phone')?.value || currentShop.phone,
+      owner: document.getElementById('sf_owner')?.value || currentUser.name,
+      description: document.getElementById('sf_description')?.value || '',
+      address: document.getElementById('sf_address')?.value || '',
+      image: imageUrl || '',
+      status: 'active',
+      plan: 'basic'
+    };
+
+    if (id) {
+      await DB.updateShop(id, {
+        name: shopData.name,
+        description: shopData.description,
+        address: shopData.address,
+        image: shopData.image,
+        category: shopData.category,
+        phone: shopData.phone
+      });
+      toast('Shop updated!');
+    } else {
+      await DB.addShop(shopData);
+      toast('New shop added!');
+    }
     document.getElementById('shopFormModal').classList.remove('active');
-    toast('Shop updated!');
     loadDashboard();
   });
 
@@ -910,6 +1062,141 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sidebarOverlay')?.classList.remove('active');
   });
   document.getElementById('sidebarCollapse')?.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('collapsed'));
+
+  // ========== LOCATION TAB ==========
+  let locationMap = null;
+  let locationMarker = null;
+  let locationAutocomplete = null;
+  let selectedLocation = { lat: null, lng: null };
+
+  window.initLocationMap = function() {
+    const defaultLoc = { lat: 20.5937, lng: 78.9629 };
+    locationMap = new google.maps.Map(document.getElementById('locationMap'), {
+      center: defaultLoc,
+      zoom: 5,
+      mapTypeControl: true,
+      streetViewControl: false
+    });
+
+    locationAutocomplete = new google.maps.places.Autocomplete(
+      document.getElementById('locationSearchInput'),
+      { types: ['address'], componentRestrictions: { country: 'in' } }
+    );
+
+    locationAutocomplete.addListener('place_changed', () => {
+      const place = locationAutocomplete.getPlace();
+      if (place.geometry && place.geometry.location) {
+        const loc = place.geometry.location;
+        selectedLocation.lat = loc.lat();
+        selectedLocation.lng = loc.lng();
+        locationMap.setCenter(loc);
+        locationMap.setZoom(15);
+        placeLocationMarker(loc);
+        extractCityState(place);
+      }
+    });
+
+    locationMap.addListener('click', (e) => {
+      selectedLocation.lat = e.latLng.lat();
+      selectedLocation.lng = e.latLng.lng();
+      placeLocationMarker(e.latLng);
+      reverseGeocode(e.latLng);
+    });
+
+    if (currentShop && currentShop.location && currentShop.location.lat && currentShop.location.lng) {
+      const savedLoc = { lat: currentShop.location.lat, lng: currentShop.location.lng };
+      locationMap.setCenter(savedLoc);
+      locationMap.setZoom(15);
+      placeLocationMarker(savedLoc);
+      document.getElementById('locationCity').value = currentShop.location.city || '';
+      document.getElementById('locationState').value = currentShop.location.state || '';
+      selectedLocation = { lat: savedLoc.lat, lng: savedLoc.lng };
+    }
+  };
+
+  function placeLocationMarker(position) {
+    if (locationMarker) locationMarker.setMap(null);
+    locationMarker = new google.maps.Marker({
+      position: position,
+      map: locationMap,
+      draggable: true,
+      title: 'Shop Location'
+    });
+    locationMarker.addListener('dragend', (e) => {
+      selectedLocation.lat = e.latLng.lat();
+      selectedLocation.lng = e.latLng.lng();
+      reverseGeocode(e.latLng);
+    });
+  }
+
+  function extractCityState(place) {
+    let city = '', state = '';
+    place.address_components.forEach(comp => {
+      if (comp.types.includes('locality')) city = comp.long_name;
+      if (comp.types.includes('administrative_area_level_1')) state = comp.long_name;
+    });
+    if (city) document.getElementById('locationCity').value = city;
+    if (state) document.getElementById('locationState').value = state;
+  }
+
+  function reverseGeocode(latlng) {
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ location: latlng }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        extractCityState(results[0]);
+      }
+    });
+  }
+
+  document.getElementById('locationSearchBtn')?.addEventListener('click', () => {
+    const input = document.getElementById('locationSearchInput');
+    if (input.value.trim()) {
+      google.maps.event.trigger(locationAutocomplete, 'place_changed');
+    }
+  });
+
+  document.getElementById('locationUseMyBtn')?.addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      toast('Geolocation is not supported by your browser', 'error');
+      return;
+    }
+    toast('Detecting your location...', 'info');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        selectedLocation.lat = loc.lat;
+        selectedLocation.lng = loc.lng;
+        locationMap.setCenter(loc);
+        locationMap.setZoom(15);
+        placeLocationMarker(loc);
+        reverseGeocode(loc);
+        toast('Location detected!');
+      },
+      () => toast('Unable to detect location. Please search manually.', 'error')
+    );
+  });
+
+  document.getElementById('locationSaveBtn')?.addEventListener('click', async () => {
+    if (!selectedLocation.lat || !selectedLocation.lng) {
+      toast('Please set a location first', 'error');
+      return;
+    }
+    try {
+      await DB.updateShop(currentShop._id, {
+        location: {
+          lat: selectedLocation.lat,
+          lng: selectedLocation.lng,
+          city: document.getElementById('locationCity').value.trim(),
+          state: document.getElementById('locationState').value.trim()
+        }
+      });
+      document.getElementById('locationStatus').textContent = 'Location saved successfully!';
+      toast('Location saved!');
+      currentShop.location = selectedLocation;
+    } catch (err) {
+      toast('Failed to save location', 'error');
+    }
+  });
 
 });
 

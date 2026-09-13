@@ -70,7 +70,7 @@ const globalLimiter = rateLimit({
 const allowedOrigins = [
   'http://localhost:5000',
   'http://localhost:3000',
-  'https://notixnode.online'
+  'https://vyaparhub.store'
 ];
 
 app.use(cors({
@@ -141,25 +141,6 @@ app.get('/map', (req, res) => {
 app.get('/pricing', (req, res) => {
   res.sendFile(path.join(__dirname, 'pricing.html'));
 });
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplocal')
-  .then(async () => {
-    console.log('Connected to MongoDB');
-    const seedData = require('./seed');
-    await seedData();
-  })
-  .catch(err => console.error('MongoDB connection error:', err));
-
-// Auth middleware
-function ensureAuth(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.status(401).json({ error: 'Please log in' });
-}
-
-function ensureAdmin(req, res, next) {
-  if (req.isAuthenticated() && req.user.role === 'admin') return next();
-  res.status(403).json({ error: 'Admin access required' });
-}
-
 // Routes
 app.use('/api/auth', authLimiter, require('./routes/auth'));
 app.use('/api/shops', globalLimiter, require('./routes/shops'));
@@ -172,10 +153,55 @@ app.use('/api/events', globalLimiter, require('./routes/events'));
 app.use('/api/settings', globalLimiter, require('./routes/settings'));
 app.use('/api/announcements', globalLimiter, require('./routes/announcements'));
 app.use('/api/upload', globalLimiter, require('./routes/upload'));
+app.use('/api/analytics', globalLimiter, require('./routes/analytics'));
+app.use('/api/admin', globalLimiter, require('./routes/admin'));
 
-// Make auth middleware available to routes
-app.locals.ensureAuth = ensureAuth;
-app.locals.ensureAdmin = ensureAdmin;
+// Daily summary scheduler
+const discord = require('./utils/discord');
+const Shop = require('./models/Shop');
+const Inquiry = require('./models/Inquiry');
+const Testimonial = require('./models/Testimonial');
+const Task = require('./models/Task');
+
+function scheduleDailySummary() {
+  const now = new Date();
+  const target = new Date();
+  target.setHours(9, 0, 0, 0);
+  if (target <= now) target.setDate(target.getDate() + 1);
+  const delay = target.getTime() - now.getTime();
+
+  setTimeout(async () => {
+    try {
+      const shops = await Shop.find();
+      const today = new Date().toISOString().split('T')[0];
+      const todayInquiries = await Inquiry.countDocuments({ createdAt: { $gte: new Date(today) } });
+      const totalReviews = await Testimonial.countDocuments();
+      const openTasks = await Task.countDocuments({ done: false });
+
+      await discord.dailySummary({
+        totalShops: shops.length,
+        activeShops: shops.filter(s => s.status === 'active').length,
+        newInquiries: todayInquiries,
+        totalReviews,
+        openTasks
+      });
+      console.log('📊 Daily summary sent');
+    } catch (err) {
+      console.error('Daily summary error:', err.message);
+    }
+    scheduleDailySummary();
+  }, delay);
+}
+
+// Connect to DB and start server
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplocal')
+  .then(async () => {
+    console.log('Connected to MongoDB');
+    const seedData = require('./seed');
+    await seedData();
+    scheduleDailySummary();
+  })
+  .catch(err => console.error('MongoDB connection error:', err));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

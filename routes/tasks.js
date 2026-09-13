@@ -3,13 +3,9 @@ const router = express.Router();
 const Task = require('../models/Task');
 const discord = require('../utils/discord');
 const { sanitizeObject, containsMongoOperator } = require('../utils/sanitize');
+const { ensureAuth } = require('../middleware/auth');
 
 const TASK_FIELDS = ['title', 'description', 'priority', 'done', 'dueDate'];
-
-function ensureAuth(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.status(401).json({ error: 'Please log in' });
-}
 
 // GET all tasks (auth required - private data)
 router.get('/', ensureAuth, async (req, res) => {

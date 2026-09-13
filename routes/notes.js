@@ -3,13 +3,9 @@ const router = express.Router();
 const Note = require('../models/Note');
 const discord = require('../utils/discord');
 const { sanitizeObject, containsMongoOperator } = require('../utils/sanitize');
+const { ensureAuth } = require('../middleware/auth');
 
 const NOTE_FIELDS = ['title', 'content', 'color'];
-
-function ensureAuth(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.status(401).json({ error: 'Please log in' });
-}
 
 // GET all notes (auth required - private data)
 router.get('/', ensureAuth, async (req, res) => {

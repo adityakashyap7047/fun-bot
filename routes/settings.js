@@ -1,16 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Setting = require('../models/Setting');
-
-function ensureAuth(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.status(401).json({ error: 'Please log in' });
-}
-
-function ensureAdmin(req, res, next) {
-  if (req.isAuthenticated() && req.user.role === 'admin') return next();
-  res.status(403).json({ error: 'Admin access required' });
-}
+const { ensureAuth, ensureAdmin } = require('../middleware/auth');
 
 // GET settings (admin only - do not leak admin username publicly)
 router.get('/', ensureAuth, ensureAdmin, async (req, res) => {

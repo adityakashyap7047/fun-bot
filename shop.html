@@ -179,6 +179,7 @@
           <a href="#" class="nav-item" data-tab="branding" data-plan="enterprise"><i class="fas fa-palette"></i> Branding</a>
           <a href="#" class="nav-item" data-tab="support" data-plan="enterprise"><i class="fas fa-headset"></i> Support</a>
           <a href="#" class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</a>
+          <a href="#" class="nav-item" data-tab="location"><i class="fas fa-map-marker-alt"></i> Location</a>
         </nav>
       </div>
       <div class="sidebar-footer">
@@ -291,6 +292,29 @@
           </div>
         </div>
 
+        <!-- ========== LOCATION TAB (All Plans) ========== -->
+        <div class="admin-tab" id="tab-location">
+          <div class="tab-header"><h2><i class="fas fa-map-marker-alt"></i> Shop Location</h2></div>
+          <div class="card" style="margin-bottom:16px;">
+            <h3 style="margin-bottom:12px;">Set Your Shop Location</h3>
+            <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:16px;">Pin your shop on the map so customers can find you. Search your address or click on the map to set your exact location.</p>
+            <div class="location-search-bar" style="display:flex;gap:10px;margin-bottom:16px;">
+              <input type="text" id="locationSearchInput" placeholder="Search your address (e.g., Katni, Madhya Pradesh)" style="flex:1;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:0.9rem;">
+              <button type="button" class="btn btn-primary" id="locationSearchBtn"><i class="fas fa-search"></i> Search</button>
+              <button type="button" class="btn btn-ghost" id="locationUseMyBtn"><i class="fas fa-crosshairs"></i> Use My Location</button>
+            </div>
+            <div id="locationMap" style="width:100%;height:400px;border-radius:12px;border:1px solid var(--border);margin-bottom:16px;"></div>
+            <div class="location-info" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+              <div class="form-group"><label>City</label><input type="text" id="locationCity" placeholder="e.g., Katni"></div>
+              <div class="form-group"><label>State</label><input type="text" id="locationState" placeholder="e.g., Madhya Pradesh"></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button type="button" class="btn btn-primary" id="locationSaveBtn"><i class="fas fa-save"></i> Save Location</button>
+              <span id="locationStatus" style="font-size:0.85rem;color:var(--text-dim);"></span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
@@ -298,10 +322,11 @@
   <!-- EDIT SHOP MODAL -->
   <div class="modal-overlay" id="shopFormModal">
     <div class="modal modal-lg">
-      <div class="modal-header"><h2>Edit Shop</h2><button class="modal-close" id="shopFormClose">&times;</button></div>
+      <div class="modal-header"><h2 id="shopFormTitle">Edit Shop</h2><button class="modal-close" id="shopFormClose">&times;</button></div>
       <form id="shopForm">
         <input type="hidden" id="editShopId">
-        <div class="form-row"><div class="form-group"><label>Shop Name</label><input type="text" id="sf_name"></div><div class="form-group"><label>Category</label><select id="sf_category"><option value="">Select</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label>Shop Name</label><input type="text" id="sf_name" required></div><div class="form-group"><label>Category</label><select id="sf_category" required><option value="">Select</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label>Phone</label><input type="tel" id="sf_phone" placeholder="+91 98765 43210"></div><div class="form-group"><label>Owner Name</label><input type="text" id="sf_owner" placeholder="Owner name"></div></div>
         <div class="form-group"><label>Description</label><textarea id="sf_description" rows="3"></textarea></div>
         <div class="form-group"><label>Address</label><input type="text" id="sf_address"></div>
         <div class="form-group">
@@ -396,5 +421,13 @@
 
   <script src="js/data.js"></script>
   <script src="js/shop-dashboard.js"></script>
+  <script>
+    if (typeof google === 'undefined' || !google.maps) {
+      window.initLocationMap = function() {
+        document.getElementById('locationMap').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-dim);text-align:center;padding:40px;"><i class="fas fa-map-marked-alt" style="font-size:2rem;margin-bottom:12px;color:var(--primary)"></i><h4 style="margin-bottom:8px">Map requires Google Maps API key</h4><p style="font-size:0.85rem">Add your API key to shop.html to enable location picking.</p></div>';
+      };
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initLocationMap" onerror="window.initLocationMap && window.initLocationMap()"></script>
 </body>
 </html>

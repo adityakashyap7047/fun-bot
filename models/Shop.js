@@ -15,7 +15,17 @@ const shopSchema = new mongoose.Schema({
     lng: { type: Number, default: null },
     city: { type: String, default: '' },
     state: { type: String, default: '' }
-  }
+  },
+  branding: {
+    primaryColor: { type: String, default: '#4f6ef7' },
+    accentColor: { type: String, default: '#22b573' },
+    bgColor: { type: String, default: '#ffffff' },
+    textColor: { type: String, default: '#1a1a2e' },
+    tagline: { type: String, default: '' },
+    logo: { type: String, default: '' }
+  },
+  views: { type: Number, default: 0 },
+  inquiryCount: { type: Number, default: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Shop', shopSchema);
