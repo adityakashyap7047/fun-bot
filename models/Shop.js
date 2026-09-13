@@ -9,7 +9,13 @@ const shopSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   image: { type: String, default: '' },
   status: { type: String, enum: ['active', 'pending', 'inactive'], default: 'active' },
-  plan: { type: String, enum: ['basic', 'pro', 'enterprise'], default: 'basic' }
+  plan: { type: String, enum: ['basic', 'pro', 'enterprise'], default: 'basic' },
+  location: {
+    lat: { type: Number, default: null },
+    lng: { type: Number, default: null },
+    city: { type: String, default: '' },
+    state: { type: String, default: '' }
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Shop', shopSchema);

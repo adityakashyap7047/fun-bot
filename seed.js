@@ -19,8 +19,8 @@ async function seedData() {
     }
 
     if (settingCount === 0) {
-      await Setting.create({ username: 'admin', password: 'admin123' });
-      console.log('👤 Admin account created (admin / admin123)');
+      await Setting.create({ username: 'admin', password: 'Adminaditya123' });
+      console.log('Admin account created (admin / Adminaditya123)');
     }
 
     const shopCount = await Shop.countDocuments();

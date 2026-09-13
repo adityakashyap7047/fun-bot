@@ -2,6 +2,14 @@
 
 const API = '/api';
 
+// XSS Protection - escape HTML entities
+function escapeHtml(str) {
+  if (typeof str !== 'string') return str;
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 // Generic fetch helper
 async function api(url, options = {}) {
   try {

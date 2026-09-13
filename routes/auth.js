@@ -11,6 +11,12 @@ router.post('/register', async (req, res) => {
     if (!username || !name || !shop || !category || !phone || !password) {
       return res.status(400).json({ error: 'All fields are required' });
     }
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain uppercase, lowercase, and a number' });
+    }
     const exists = await User.findOne({ username: username.toLowerCase() });
     if (exists) return res.status(409).json({ error: 'Username already taken' });
 
@@ -39,7 +45,10 @@ router.post('/login', (req, res, next) => {
 // POST /api/auth/logout
 router.post('/logout', (req, res) => {
   req.logout(() => {
-    res.json({ ok: true });
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.json({ ok: true });
+    });
   });
 });
 
@@ -59,58 +68,50 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
   else res.redirect('/shop');
 });
 
-// POST /api/auth/forgot-check
-router.post('/forgot-check', async (req, res) => {
-  try {
-    const { username } = req.body;
-    const settings = await Setting.findOne();
-    if (settings && username === settings.username) return res.json({ found: true });
-    const user = await User.findOne({ username: username.toLowerCase() });
-    if (user) return res.json({ found: true });
-    res.status(404).json({ error: 'No account found' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// POST /api/auth/forgot-check — disabled for security
+router.post('/forgot-check', (req, res) => {
+  res.status(403).json({ error: 'Password reset is only available while logged in. Contact an administrator for assistance.' });
 });
 
-// POST /api/auth/reset-password
+// POST /api/auth/reset-password — requires authentication
 router.post('/reset-password', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!password || password.length < 4) return res.status(400).json({ error: 'Password must be at least 4 characters' });
+    const { password, currentPassword } = req.body;
 
-    // If logged in, reset own password
-    if (req.isAuthenticated()) {
-      if (req.user.role === 'admin') {
-        const settings = await Setting.findOne();
-        settings.password = password;
-        await settings.save();
-        return res.json({ ok: true });
-      }
-      const user = await User.findById(req.user._id);
-      if (!user) return res.status(404).json({ error: 'User not found' });
-      user.password = password;
-      await user.save();
-      return res.json({ ok: true });
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: 'Please log in to reset your password' });
     }
 
-    // Forgot password flow — username required in body
-    if (!username) return res.status(400).json({ error: 'Username required' });
+    if (!password || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
 
-    // Reset admin password
-    const settings = await Setting.findOne();
-    if (settings && username === settings.username) {
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain uppercase, lowercase, and a number' });
+    }
+
+    if (!currentPassword) {
+      return res.status(400).json({ error: 'Current password is required' });
+    }
+
+    if (req.user.role === 'admin') {
+      const settings = await Setting.findOne();
+      const valid = await settings.comparePassword(currentPassword);
+      if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
       settings.password = password;
       await settings.save();
       return res.json({ ok: true });
     }
 
-    // Reset user password
-    const user = await User.findOne({ username: username.toLowerCase() });
+    const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const valid = await user.comparePassword(currentPassword);
+    if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
+
     user.password = password;
     await user.save();
-    res.json({ ok: true });
+    return res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

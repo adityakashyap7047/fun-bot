@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Inquiry = require('../models/Inquiry');
 const discord = require('../utils/discord');
+const { sanitizeObject, containsMongoOperator } = require('../utils/sanitize');
+
+const INQUIRY_FIELDS = ['shopName', 'ownerName', 'phone', 'category', 'address', 'description'];
 
 function ensureAuth(req, res, next) {
   if (req.isAuthenticated()) return next();
@@ -14,19 +17,23 @@ router.get('/', ensureAuth, async (req, res) => {
     const inquiries = await Inquiry.find().sort({ createdAt: -1 });
     res.json(inquiries);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load inquiries' });
   }
 });
 
 // POST create inquiry (auth required)
 router.post('/', ensureAuth, async (req, res) => {
   try {
-    const inquiry = new Inquiry(req.body);
+    if (containsMongoOperator(req.body)) {
+      return res.status(400).json({ error: 'Invalid input' });
+    }
+    const data = sanitizeObject(req.body, INQUIRY_FIELDS);
+    const inquiry = new Inquiry(data);
     await inquiry.save();
     discord.inquiryCreated(inquiry);
     res.status(201).json(inquiry);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: 'Failed to create inquiry' });
   }
 });
 
@@ -38,7 +45,7 @@ router.delete('/:id', ensureAuth, async (req, res) => {
     discord.inquiryDeleted();
     res.json({ message: 'Inquiry deleted' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to delete inquiry' });
   }
 });
 

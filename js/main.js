@@ -156,19 +156,19 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="shop-card scroll-reveal hover-lift" data-delay="${i * 100}" onclick="openShopModal('${shop._id}')">
           <div class="shop-card-image" style="background: ${shop.image ? 'none' : getGradient(shop.category)}">
             ${shop.image
-              ? `<img src="${shop.image}" alt="${shop.name}">`
+              ? `<img src="${shop.image}" alt="${escapeHtml(shop.name)}">`
               : `<i class="${getShopCardIcon(shop.category)} placeholder-icon"></i>`
             }
-            <span class="shop-badge badge-${shop.status}">${shop.status}</span>
-            <span class="shop-plan-badge">${shop.plan}</span>
+            <span class="shop-badge badge-${shop.status}">${escapeHtml(shop.status)}</span>
+            <span class="shop-plan-badge">${escapeHtml(shop.plan)}</span>
           </div>
           <div class="shop-card-body">
-            <h3>${shop.name}</h3>
-            <p class="owner"><i class="fas fa-user"></i> ${shop.owner}</p>
-            <p class="description">${shop.description || 'No description available.'}</p>
+            <h3>${escapeHtml(shop.name)}</h3>
+            <p class="owner"><i class="fas fa-user"></i> ${escapeHtml(shop.owner)}</p>
+            <p class="description">${escapeHtml(shop.description || 'No description available.')}</p>
             <div class="shop-card-meta">
-              <span class="shop-category-tag">${shop.category}</span>
-              <span class="shop-phone"><i class="fas fa-phone"></i> ${shop.phone}</span>
+              <span class="shop-category-tag">${escapeHtml(shop.category)}</span>
+              <span class="shop-phone"><i class="fas fa-phone"></i> ${escapeHtml(shop.phone)}</span>
             </div>
           </div>
         </div>
@@ -203,29 +203,29 @@ document.addEventListener('DOMContentLoaded', () => {
       body.innerHTML = `
         <div style="height: 250px; background: ${shop.image ? 'none' : getGradient(shop.category)}; border-radius: 16px; overflow: hidden; margin-bottom: 24px; display: flex; align-items: center; justify-content: center;">
           ${shop.image
-            ? `<img src="${shop.image}" alt="${shop.name}" style="width:100%;height:100%;object-fit:cover;">`
+            ? `<img src="${shop.image}" alt="${escapeHtml(shop.name)}" style="width:100%;height:100%;object-fit:cover;">`
             : `<i class="${getShopCardIcon(shop.category)}" style="font-size: 5rem; color: rgba(255,255,255,0.3);"></i>`
           }
         </div>
-        <span class="status-badge status-${shop.status}" style="margin-bottom:12px;display:inline-block;">${shop.status.toUpperCase()}</span>
-        <h2 style="font-size:1.6rem;margin-bottom:8px;">${shop.name}</h2>
-        <p style="color:var(--gray);margin-bottom:20px;">${shop.description || 'No description available.'}</p>
+        <span class="status-badge status-${shop.status}" style="margin-bottom:12px;display:inline-block;">${escapeHtml(shop.status.toUpperCase())}</span>
+        <h2 style="font-size:1.6rem;margin-bottom:8px;">${escapeHtml(shop.name)}</h2>
+        <p style="color:var(--gray);margin-bottom:20px;">${escapeHtml(shop.description || 'No description available.')}</p>
         <div style="display:flex;flex-direction:column;gap:16px;">
           <div style="display:flex;align-items:center;gap:12px;">
             <div style="width:40px;height:40px;background:rgba(108,92,231,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary);"><i class="fas fa-user"></i></div>
-            <div><strong>Owner:</strong> ${shop.owner}</div>
+            <div><strong>Owner:</strong> ${escapeHtml(shop.owner)}</div>
           </div>
           <div style="display:flex;align-items:center;gap:12px;">
             <div style="width:40px;height:40px;background:rgba(0,184,148,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--success);"><i class="fas fa-phone"></i></div>
-            <div><strong>Phone:</strong> ${shop.phone}</div>
+            <div><strong>Phone:</strong> ${escapeHtml(shop.phone)}</div>
           </div>
           <div style="display:flex;align-items:center;gap:12px;">
             <div style="width:40px;height:40px;background:rgba(253,121,168,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--accent);"><i class="fas fa-map-marker-alt"></i></div>
-            <div><strong>Address:</strong> ${shop.address}</div>
+            <div><strong>Address:</strong> ${escapeHtml(shop.address || 'N/A')}</div>
           </div>
           <div style="display:flex;align-items:center;gap:12px;">
             <div style="width:40px;height:40px;background:rgba(108,92,231,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary);"><i class="fas fa-tag"></i></div>
-            <div><strong>Category:</strong> ${shop.category}</div>
+            <div><strong>Category:</strong> ${escapeHtml(shop.category)}</div>
           </div>
         </div>
       `;
@@ -264,12 +264,12 @@ document.addEventListener('DOMContentLoaded', () => {
               ${Array(t.rating).fill('<i class="fas fa-star"></i>').join('')}
               ${Array(5 - t.rating).fill('<i class="far fa-star"></i>').join('')}
             </div>
-            <p class="testimonial-text">${t.review}</p>
+            <p class="testimonial-text">${escapeHtml(t.review)}</p>
             <div class="testimonial-author">
               <div class="testimonial-avatar">${t.name.charAt(0)}</div>
               <div class="testimonial-info">
-                <h4>${t.name}</h4>
-                <p>${t.shop}</p>
+                <h4>${escapeHtml(t.name)}</h4>
+                <p>${escapeHtml(t.shop)}</p>
               </div>
             </div>
           </div>
