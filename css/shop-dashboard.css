@@ -616,6 +616,61 @@
   display: none;
 }
 
+/* ========== DANGER ZONE ========== */
+.settings-card.danger {
+  border-color: rgba(231, 76, 94, 0.2);
+  background: rgba(231, 76, 94, 0.03);
+}
+
+.settings-card.danger h3 {
+  color: var(--red, #e74c5e);
+}
+
+.settings-card.danger p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+/* ========== FORGOT PASSWORD MODAL ========== */
+.forgot-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.forgot-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--primary-bg, #eef2ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--primary, #4f6ef7);
+}
+
+.forgot-icon.success {
+  background: var(--green-bg, #ecfdf5);
+  color: var(--green, #22b573);
+}
+
+.forgot-desc {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+}
+
 .file-preview {
   position: relative;
   width: 100%;

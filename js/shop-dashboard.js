@@ -299,6 +299,61 @@ document.addEventListener('DOMContentLoaded', () => {
     location.reload();
   });
 
+  // ========== FORGOT PASSWORD ==========
+  const forgotModal = document.getElementById('forgotModal');
+  document.getElementById('forgotPassLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    forgotModal.classList.add('active');
+    document.getElementById('forgotFormStep1').style.display = 'block';
+    document.getElementById('forgotFormStep2').style.display = 'none';
+    document.getElementById('forgotFormStep3').style.display = 'none';
+    document.getElementById('forgotUsername').value = '';
+  });
+  document.getElementById('forgotClose')?.addEventListener('click', () => forgotModal.classList.remove('active'));
+  forgotModal?.addEventListener('click', (e) => { if (e.target === forgotModal) forgotModal.classList.remove('active'); });
+
+  document.getElementById('forgotSendBtn')?.addEventListener('click', async () => {
+    const username = document.getElementById('forgotUsername').value.trim();
+    if (!username) { document.getElementById('forgotUsername').style.borderColor = 'var(--red)'; return; }
+    try {
+      const res = await fetch('/api/auth/forgot-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      if (!res.ok) throw new Error();
+      sessionStorage.setItem('sl_reset_user', username);
+      document.getElementById('forgotFormStep1').style.display = 'none';
+      document.getElementById('forgotFormStep2').style.display = 'block';
+    } catch (err) { toast('No account found', 'error'); }
+  });
+
+  document.getElementById('forgotResetBtn')?.addEventListener('click', async () => {
+    const newPass = document.getElementById('forgotNewPass').value;
+    const confirmPass = document.getElementById('forgotConfirmPass').value;
+    const resetUser = sessionStorage.getItem('sl_reset_user');
+    if (newPass.length < 4) { toast('Min 4 characters', 'error'); return; }
+    if (newPass !== confirmPass) { toast('Passwords do not match', 'error'); return; }
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: resetUser, password: newPass })
+      });
+      if (!res.ok) throw new Error();
+      sessionStorage.removeItem('sl_reset_user');
+      document.getElementById('forgotFormStep2').style.display = 'none';
+      document.getElementById('forgotFormStep3').style.display = 'block';
+    } catch (err) {
+      toast('Failed to reset password', 'error');
+    }
+  });
+
+  document.getElementById('forgotDoneBtn')?.addEventListener('click', () => {
+    forgotModal.classList.remove('active');
+    document.getElementById('loginUser')?.focus();
+  });
+
   // ========== LOAD DASHBOARD ==========
   async function loadDashboard() {
     authScreen.style.display = 'none';
@@ -752,6 +807,18 @@ document.addEventListener('DOMContentLoaded', () => {
         toast('Password updated!');
         e.target.reset();
       } catch (err) { toast('Failed: ' + err.message, 'error'); }
+    });
+
+    // Delete Account
+    document.getElementById('deleteAccountBtn')?.addEventListener('click', async () => {
+      if (await confirmDialog('Delete Account', 'This will permanently delete your shop and account. Are you sure?')) {
+        try {
+          await fetch(`/api/shops/${shop._id}`, { method: 'DELETE' });
+          await fetch('/api/auth/logout', { method: 'POST' });
+          toast('Account deleted');
+          setTimeout(() => location.reload(), 1000);
+        } catch (err) { toast('Failed to delete account', 'error'); }
+      }
     });
   }
 

@@ -82,7 +82,7 @@
               </div>
               <div class="login-options">
                 <label class="remember-me"><input type="checkbox" checked><span>Remember me</span></label>
-                <a href="#" class="forgot-pass">Forgot password?</a>
+                <a href="#" class="forgot-pass" id="forgotPassLink">Forgot password?</a>
               </div>
               <div class="login-error" id="loginError"><i class="fas fa-exclamation-circle"></i> Invalid credentials. Try again.</div>
               <button type="submit" class="btn-login-v2"><span>Sign in</span><i class="fas fa-arrow-right"></i></button>
@@ -265,13 +265,13 @@
           <div class="tab-header"><h2>Settings</h2></div>
           <div class="settings-grid">
             <div class="card settings-card">
-              <h3><i class="fas fa-user"></i> Profile</h3>
+              <h3><i class="fas fa-user"></i> Shop Profile</h3>
               <form id="shopProfileForm">
                 <div class="form-group"><label>Shop Name</label><input type="text" id="setShopName"></div>
                 <div class="form-group"><label>Phone</label><input type="tel" id="setShopPhone"></div>
                 <div class="form-group"><label>Address</label><input type="text" id="setShopAddress"></div>
                 <div class="form-group"><label>Description</label><textarea id="setShopDesc" rows="3"></textarea></div>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
               </form>
             </div>
             <div class="card settings-card">
@@ -280,8 +280,13 @@
                 <div class="form-group"><label>Current Password</label><input type="password" id="currentPass" required></div>
                 <div class="form-group"><label>New Password</label><input type="password" id="newPass" required></div>
                 <div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPass" required></div>
-                <button type="submit" class="btn btn-primary">Update Password</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-lock"></i> Update Password</button>
               </form>
+            </div>
+            <div class="card settings-card danger" style="grid-column: 1 / -1;">
+              <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+              <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+              <button class="btn btn-danger" id="deleteAccountBtn"><i class="fas fa-trash"></i> Delete Account</button>
             </div>
           </div>
         </div>
@@ -343,6 +348,49 @@
       <h3 id="confirmTitle">Are you sure?</h3>
       <p id="confirmMessage">This action cannot be undone.</p>
       <div class="confirm-actions"><button class="btn btn-ghost" id="confirmCancel">Cancel</button><button class="btn btn-danger" id="confirmOk">Delete</button></div>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD MODAL -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Reset Password</h2>
+        <button class="modal-close" id="forgotClose">&times;</button>
+      </div>
+      <div class="forgot-form" id="forgotFormStep1">
+        <div class="forgot-icon"><i class="fas fa-envelope"></i></div>
+        <p class="forgot-desc">Enter your username and we'll help you reset your password.</p>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="forgotUsername" placeholder="Enter your username">
+        </div>
+        <button class="btn btn-primary btn-full" id="forgotSendBtn">
+          <i class="fas fa-paper-plane"></i> Continue
+        </button>
+      </div>
+      <div class="forgot-form" id="forgotFormStep2" style="display:none;">
+        <div class="forgot-icon success"><i class="fas fa-check-circle"></i></div>
+        <p class="forgot-desc">Identity verified! Enter your new password below.</p>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="forgotNewPass" placeholder="Min 4 characters">
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" id="forgotConfirmPass" placeholder="Re-type password">
+        </div>
+        <button class="btn btn-primary btn-full" id="forgotResetBtn">
+          <i class="fas fa-lock"></i> Reset Password
+        </button>
+      </div>
+      <div class="forgot-form" id="forgotFormStep3" style="display:none;">
+        <div class="forgot-icon success"><i class="fas fa-check-circle"></i></div>
+        <p class="forgot-desc">Password reset successfully! You can now login with your new password.</p>
+        <button class="btn btn-primary btn-full" id="forgotDoneBtn">
+          <i class="fas fa-arrow-right"></i> Go to Login
+        </button>
+      </div>
     </div>
   </div>
 

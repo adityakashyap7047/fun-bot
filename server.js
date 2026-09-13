@@ -7,17 +7,45 @@ const MongoStore = require('connect-mongo').MongoStore;
 const passport = require('passport');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Request timeout middleware
+app.use((req, res, next) => {
+  req.setTimeout(30000);
+  res.setTimeout(30000);
+  next();
+});
+
 app.set('trust proxy', 1);
 
-// Security headers
+// Security headers with CSP enabled
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://accounts.google.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      frameSrc: ["https://accounts.google.com"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: []
+    }
+  },
   crossOriginEmbedderPolicy: false
+}));
+
+// NoSQL injection protection
+app.use(mongoSanitize({
+  replaceWith: '_',
+  onSanitize: ({ req, key }) => {
+    console.warn(`Sanitized key "${key}" from request`);
+  }
 }));
 
 // Rate limiter for auth routes
@@ -29,11 +57,39 @@ const authLimiter = rateLimit({
   legacyHeaders: false
 });
 
-// Middleware
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+// Global rate limiter
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// CORS - restrict to known origins
+const allowedOrigins = [
+  'http://localhost:5000',
+  'http://localhost:3000',
+  'https://notixnode.online'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
+// Body parsing with size limits
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback_secret_change_me',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
@@ -44,7 +100,8 @@ app.use(session({
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: 'lax'
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
   }
 }));
 app.use(passport.initialize());
@@ -53,17 +110,29 @@ app.use(passport.session());
 // Passport config
 require('./config/passport')(passport);
 
-app.use(express.static(path.join(__dirname)));
+// Serve only specific static files (not entire project root)
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// MongoDB Connection + Seed
+// Serve specific HTML files
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+app.get('/shop', (req, res) => {
+  res.sendFile(path.join(__dirname, 'shop.html'));
+});
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplocal')
   .then(async () => {
-    console.log('✅ Connected to MongoDB');
+    console.log('Connected to MongoDB');
     const seedData = require('./seed');
     await seedData();
   })
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Auth middleware
 function ensureAuth(req, res, next) {
@@ -78,30 +147,21 @@ function ensureAdmin(req, res, next) {
 
 // Routes
 app.use('/api/auth', authLimiter, require('./routes/auth'));
-app.use('/api/shops', require('./routes/shops'));
-app.use('/api/categories', require('./routes/categories'));
-app.use('/api/testimonials', require('./routes/testimonials'));
-app.use('/api/inquiries', require('./routes/inquiries'));
-app.use('/api/tasks', require('./routes/tasks'));
-app.use('/api/notes', require('./routes/notes'));
-app.use('/api/events', require('./routes/events'));
-app.use('/api/settings', require('./routes/settings'));
-app.use('/api/announcements', require('./routes/announcements'));
-app.use('/api/upload', require('./routes/upload'));
+app.use('/api/shops', globalLimiter, require('./routes/shops'));
+app.use('/api/categories', globalLimiter, require('./routes/categories'));
+app.use('/api/testimonials', globalLimiter, require('./routes/testimonials'));
+app.use('/api/inquiries', globalLimiter, require('./routes/inquiries'));
+app.use('/api/tasks', globalLimiter, require('./routes/tasks'));
+app.use('/api/notes', globalLimiter, require('./routes/notes'));
+app.use('/api/events', globalLimiter, require('./routes/events'));
+app.use('/api/settings', globalLimiter, require('./routes/settings'));
+app.use('/api/announcements', globalLimiter, require('./routes/announcements'));
+app.use('/api/upload', globalLimiter, require('./routes/upload'));
 
 // Make auth middleware available to routes
 app.locals.ensureAuth = ensureAuth;
 app.locals.ensureAdmin = ensureAdmin;
 
-// Serve frontend - specific routes only
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin.html'));
-});
-
-app.get('/shop', (req, res) => {
-  res.sendFile(path.join(__dirname, 'shop.html'));
-});
-
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
