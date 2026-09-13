@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('agendaDate').textContent = relativeDay(today);
       const agendaList = document.getElementById('agendaList');
       agendaList.innerHTML = todayEvents.length > 0 ? todayEvents.map(e => `
-        <div class="agenda-item"><span class="agenda-time">${e.time}</span><span class="agenda-badge badge-${e.type}">${e.type}</span><span class="agenda-text">${e.title}</span></div>
+        <div class="agenda-item"><span class="agenda-time">${escapeHtml(e.time)}</span><span class="agenda-badge badge-${e.type}">${escapeHtml(e.type)}</span><span class="agenda-text">${escapeHtml(e.title)}</span></div>
       `).join('') : '<p style="color:var(--text-muted);font-size:0.85rem;padding:20px 0;">No events today.</p>';
 
       // Tasks overview
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('activityList').innerHTML = activities.slice(0, 8).map(a => `
         <div class="activity-item">
           <div class="activity-icon icon-${a.type}"><i class="fas ${icons[a.type]}"></i></div>
-          <div class="activity-info"><div class="activity-title">${a.title}</div><div class="activity-desc">${a.desc}</div></div>
+          <div class="activity-info"><div class="activity-title">${escapeHtml(a.title)}</div><div class="activity-desc">${escapeHtml(a.desc)}</div></div>
           <span class="activity-badge badge-${a.badge}">${badgeLabels[a.badge] || a.badge}</span>
           <span class="activity-time">${timeAgo(a.time)}</span>
         </div>
@@ -409,9 +409,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (statusFilter !== 'all') shops = shops.filter(s => s.status === statusFilter);
       document.getElementById('shopsTable').innerHTML = shops.map(s => `
         <tr>
-          <td><strong>${s.name}</strong></td><td>${s.owner}</td><td>${s.category}</td><td>${s.phone}</td>
-          <td><span class="status-badge status-active">${s.plan}</span></td>
-          <td><span class="status-badge status-${s.status}">${s.status}</span></td>
+          <td><strong>${escapeHtml(s.name)}</strong></td><td>${escapeHtml(s.owner)}</td><td>${escapeHtml(s.category)}</td><td>${escapeHtml(s.phone)}</td>
+          <td><span class="status-badge status-active">${escapeHtml(s.plan)}</span></td>
+          <td><span class="status-badge status-${s.status}">${escapeHtml(s.status)}</span></td>
           <td class="table-actions">
             <button class="btn-edit" onclick="editShop('${s._id}')"><i class="fas fa-pen"></i></button>
             <button class="btn-delete" onclick="deleteShop('${s._id}')"><i class="fas fa-trash"></i></button>
@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const shops = await DB.getShops();
       document.getElementById('categoriesGrid').innerHTML = cats.map(c => {
         const count = shops.filter(s => s.category === c.name).length;
-        return `<div class="category-card"><div class="cat-actions"><button class="btn-edit" onclick="editCategory('${c._id}')"><i class="fas fa-pen"></i></button><button class="btn-delete" onclick="deleteCategory('${c._id}')"><i class="fas fa-trash"></i></button></div><div class="cat-icon"><i class="${c.icon}"></i></div><h4>${c.name}</h4><p class="cat-count">${count} shop${count !== 1 ? 's' : ''}</p></div>`;
+        return `<div class="category-card"><div class="cat-actions"><button class="btn-edit" onclick="editCategory('${c._id}')"><i class="fas fa-pen"></i></button><button class="btn-delete" onclick="deleteCategory('${c._id}')"><i class="fas fa-trash"></i></button></div><div class="cat-icon"><i class="${escapeHtml(c.icon)}"></i></div><h4>${escapeHtml(c.name)}</h4><p class="cat-count">${count} shop${count !== 1 ? 's' : ''}</p></div>`;
       }).join('');
     } catch (e) {}
   }
@@ -524,7 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const items = await DB.getInquiries();
       document.getElementById('inquiriesTable').innerHTML = items.map(i => `
-        <tr><td><strong>${i.shopName}</strong></td><td>${i.ownerName}</td><td>${i.phone}</td><td>${i.category}</td><td>${new Date(i.createdAt).toLocaleDateString()}</td>
+        <tr><td><strong>${escapeHtml(i.shopName)}</strong></td><td>${escapeHtml(i.ownerName)}</td><td>${escapeHtml(i.phone)}</td><td>${escapeHtml(i.category)}</td><td>${new Date(i.createdAt).toLocaleDateString()}</td>
         <td class="table-actions"><button class="btn-delete" onclick="deleteInquiry('${i._id}')"><i class="fas fa-trash"></i></button></td></tr>
       `).join('');
     } catch (e) {}
@@ -543,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('tasksList').innerHTML = tasks.map(t => `
         <div class="task-item">
           <button class="task-check ${t.done ? 'done' : ''}" onclick="toggleTask('${t._id}', ${!t.done})">${t.done ? '<i class="fas fa-check"></i>' : ''}</button>
-          <div class="task-info"><div class="task-title ${t.done ? 'done' : ''}">${t.title}</div><div class="task-meta">${t.description || ''}${t.dueDate ? ' · Due ' + relativeDay(t.dueDate) : ''}</div></div>
+          <div class="task-info"><div class="task-title ${t.done ? 'done' : ''}">${escapeHtml(t.title)}</div><div class="task-meta">${escapeHtml(t.description || '')}${t.dueDate ? ' · Due ' + relativeDay(t.dueDate) : ''}</div></div>
           <span class="task-priority priority-${t.priority}">${t.priority}</span>
           <div class="table-actions"><button class="btn-edit" onclick="editTask('${t._id}')"><i class="fas fa-pen"></i></button><button class="btn-delete" onclick="deleteTask('${t._id}')"><i class="fas fa-trash"></i></button></div>
         </div>
@@ -613,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('notesGrid').innerHTML = notes.map(n => `
         <div class="note-card"><div class="note-stripe" style="background:${n.color}"></div>
         <div class="note-actions"><button class="btn-edit" onclick="editNote('${n._id}')"><i class="fas fa-pen"></i></button><button class="btn-delete" onclick="deleteNote('${n._id}')"><i class="fas fa-trash"></i></button></div>
-        <h4>${n.title}</h4><p>${(n.content || '').replace(/\n/g, '<br>')}</p><div class="note-date">${new Date(n.createdAt).toLocaleDateString()}</div></div>
+        <h4>${escapeHtml(n.title)}</h4><p>${escapeHtml(n.content || '').replace(/\n/g, '<br>')}</p><div class="note-date">${new Date(n.createdAt).toLocaleDateString()}</div></div>
       `).join('');
     } catch (e) {}
   }
@@ -647,7 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const items = await DB.getTestimonials();
       document.getElementById('testimonialsTable').innerHTML = items.map(t => `
-        <tr><td><strong>${t.name}</strong></td><td>${t.shop}</td><td>${'★'.repeat(t.rating)}${'☆'.repeat(5-t.rating)}</td><td>${t.review.substring(0, 50)}...</td>
+        <tr><td><strong>${escapeHtml(t.name)}</strong></td><td>${escapeHtml(t.shop)}</td><td>${'★'.repeat(t.rating)}${'☆'.repeat(5-t.rating)}</td><td>${escapeHtml(t.review.substring(0, 50))}...</td>
         <td class="table-actions"><button class="btn-edit" onclick="editTestimonial('${t._id}')"><i class="fas fa-pen"></i></button><button class="btn-delete" onclick="deleteTestimonial('${t._id}')"><i class="fas fa-trash"></i></button></td></tr>
       `).join('');
     } catch (e) {}
@@ -683,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const shops = await DB.getShops();
       document.getElementById('customersTable').innerHTML = shops.map(s => `
-        <tr><td><strong>${s.owner}</strong></td><td>${s.name}</td><td>${s.category}</td><td>${s.phone}</td><td>${new Date(s.createdAt).toLocaleDateString()}</td></tr>
+        <tr><td><strong>${escapeHtml(s.owner)}</strong></td><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.category)}</td><td>${escapeHtml(s.phone)}</td><td>${new Date(s.createdAt).toLocaleDateString()}</td></tr>
       `).join('');
     } catch (e) {}
   }
@@ -694,31 +694,53 @@ document.addEventListener('DOMContentLoaded', () => {
       const [shops, inquiries] = await Promise.all([DB.getShops(), DB.getInquiries()]);
       const catMap = {}; shops.forEach(s => { catMap[s.category] = (catMap[s.category] || 0) + 1; });
       const maxCat = Math.max(...Object.values(catMap), 1);
-      document.getElementById('analyticsCategories').innerHTML = Object.entries(catMap).map(([n, c]) => `<div class="analytics-row"><span class="analytics-label">${n}</span><div class="analytics-bar-wrap"><div class="analytics-bar" style="width:${(c/maxCat)*100}%"></div></div><span class="analytics-count">${c}</span></div>`).join('') || '<p style="color:var(--text-muted)">No data</p>';
+      document.getElementById('analyticsCategories').innerHTML = Object.entries(catMap).map(([n, c]) => `<div class="analytics-row"><span class="analytics-label">${escapeHtml(n)}</span><div class="analytics-bar-wrap"><div class="analytics-bar" style="width:${(c/maxCat)*100}%"></div></div><span class="analytics-count">${c}</span></div>`).join('') || '<p style="color:var(--text-muted)">No data</p>';
 
       const planMap = {}; shops.forEach(s => { planMap[s.plan] = (planMap[s.plan] || 0) + 1; });
       const maxPlan = Math.max(...Object.values(planMap), 1);
-      document.getElementById('analyticsPlans').innerHTML = Object.entries(planMap).map(([n, c]) => `<div class="analytics-row"><span class="analytics-label">${n}</span><div class="analytics-bar-wrap"><div class="analytics-bar" style="width:${(c/maxPlan)*100}%;background:var(--green)"></div></div><span class="analytics-count">${c}</span></div>`).join('') || '<p style="color:var(--text-muted)">No data</p>';
+      document.getElementById('analyticsPlans').innerHTML = Object.entries(planMap).map(([n, c]) => `<div class="analytics-row"><span class="analytics-label">${escapeHtml(n)}</span><div class="analytics-bar-wrap"><div class="analytics-bar" style="width:${(c/maxPlan)*100}%;background:var(--green)"></div></div><span class="analytics-count">${c}</span></div>`).join('') || '<p style="color:var(--text-muted)">No data</p>';
 
-      document.getElementById('analyticsSignups').innerHTML = shops.slice(0, 5).map(s => `<div class="analytics-row"><span class="analytics-label">${s.name}</span><span style="font-size:0.8rem;color:var(--text-muted)">${new Date(s.createdAt).toLocaleDateString()}</span></div>`).join('') || '<p style="color:var(--text-muted)">No data</p>';
+      document.getElementById('analyticsSignups').innerHTML = shops.slice(0, 5).map(s => `<div class="analytics-row"><span class="analytics-label">${escapeHtml(s.name)}</span><span style="font-size:0.8rem;color:var(--text-muted)">${new Date(s.createdAt).toLocaleDateString()}</span></div>`).join('') || '<p style="color:var(--text-muted)">No data</p>';
 
       const inqMap = {}; inquiries.forEach(i => { inqMap[i.category] = (inqMap[i.category] || 0) + 1; });
       const maxInq = Math.max(...Object.values(inqMap), 1);
-      document.getElementById('analyticsInquiries').innerHTML = Object.entries(inqMap).map(([n, c]) => `<div class="analytics-row"><span class="analytics-label">${n}</span><div class="analytics-bar-wrap"><div class="analytics-bar" style="width:${(c/maxInq)*100}%;background:var(--orange)"></div></div><span class="analytics-count">${c}</span></div>`).join('') || '<p style="color:var(--text-muted)">No data</p>';
+      document.getElementById('analyticsInquiries').innerHTML = Object.entries(inqMap).map(([n, c]) => `<div class="analytics-row"><span class="analytics-label">${escapeHtml(n)}</span><div class="analytics-bar-wrap"><div class="analytics-bar" style="width:${(c/maxInq)*100}%;background:var(--orange)"></div></div><span class="analytics-count">${c}</span></div>`).join('') || '<p style="color:var(--text-muted)">No data</p>';
     } catch (e) {}
   }
 
   // ========== SETTINGS ==========
   document.getElementById('changePasswordForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const currentPass = document.getElementById('currentPass').value;
+    const newPass = document.getElementById('newPass').value;
+    const confirmPass = document.getElementById('confirmPass').value;
+
+    if (newPass !== confirmPass) {
+      toast('Passwords do not match', 'error');
+      return;
+    }
+    if (newPass.length < 8) {
+      toast('Password must be at least 8 characters', 'error');
+      return;
+    }
+    if (!/[A-Z]/.test(newPass) || !/[a-z]/.test(newPass) || !/[0-9]/.test(newPass)) {
+      toast('Password must contain uppercase, lowercase, and a number', 'error');
+      return;
+    }
+
     try {
-      await fetch('/api/auth/reset-password', {
+      const res = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: document.getElementById('newPass').value })
+        body: JSON.stringify({ password: newPass, currentPassword: currentPass })
       });
-      e.target.reset(); toast('Password changed');
-    } catch (err) { toast('Error', 'error'); }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      e.target.reset();
+      toast('Password changed successfully');
+    } catch (err) {
+      toast('Error: ' + err.message, 'error');
+    }
   });
 
   document.getElementById('resetDataBtn')?.addEventListener('click', async () => {
@@ -735,7 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const events = await DB.getEvents();
       const dayEvents = events.filter(e => e.date === dateStr);
-      document.getElementById('agendaList').innerHTML = dayEvents.length > 0 ? dayEvents.map(e => `<div class="agenda-item"><span class="agenda-time">${e.time}</span><span class="agenda-badge badge-${e.type}">${e.type}</span><span class="agenda-text">${e.title}</span></div>`).join('') : '<p style="color:var(--text-muted);font-size:0.85rem;padding:20px 0;">No events.</p>';
+      document.getElementById('agendaList').innerHTML = dayEvents.length > 0 ? dayEvents.map(e => `<div class="agenda-item"><span class="agenda-time">${escapeHtml(e.time)}</span><span class="agenda-badge badge-${escapeHtml(e.type)}">${escapeHtml(e.type)}</span><span class="agenda-text">${escapeHtml(e.title)}</span></div>`).join('') : '<p style="color:var(--text-muted);font-size:0.85rem;padding:20px 0;">No events.</p>';
     } catch (e) {}
   }
 
@@ -824,13 +846,100 @@ document.addEventListener('DOMContentLoaded', () => {
       list.innerHTML = channels.map(ch => `
         <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
           <span style="width:8px;height:8px;border-radius:50%;background:${ch.configured ? 'var(--green)' : 'var(--red)'};flex-shrink:0;"></span>
-          <span style="font-size:0.85rem;font-weight:500;">#${ch.name}</span>
+          <span style="font-size:0.85rem;font-weight:500;">#${escapeHtml(ch.name)}</span>
           <span style="font-size:0.75rem;color:var(--text-muted);margin-left:auto;">${ch.configured ? 'Connected' : 'Not configured'}</span>
         </div>
       `).join('');
     } catch (err) {}
   }
   loadChannels();
+
+  // ========== DISCORD TESTER ==========
+  const DC_API = window.location.origin;
+
+  const dcPayloads = {
+    shopCreated:        { url: '/api/shops', body: { name: 'Test Shop', owner: 'Test Owner', category: 'Food & Drinks', phone: '9999999999', plan: 'pro', status: 'active', description: 'Discord webhook test' } },
+    shopUpdated:        { url: '/api/shops', body: { name: 'Update Shop', owner: 'Owner', category: 'Retail', phone: '8888888888', status: 'active' } },
+    shopStatusChanged:  { url: '/api/shops', body: { name: 'Status Shop', owner: 'Owner', category: 'Services', phone: '7777777777', status: 'pending' } },
+    shopDeleted:        { url: '/api/shops', body: { name: 'Delete Shop', owner: 'Owner', category: 'Other', phone: '6666666666', status: 'active' } },
+    inquiryCreated:     { url: '/api/inquiries', body: { shopName: 'Inquiry Shop', ownerName: 'Inquiry Owner', phone: '5555555555', category: 'Food & Drinks', description: 'Test inquiry' } },
+    inquiryDeleted:     { url: '/api/inquiries', body: { shopName: 'Delete Inquiry', ownerName: 'Owner', phone: '4444444444' } },
+    testimonialCreated: { url: '/api/testimonials', body: { name: 'Happy Customer', shop: 'Test Shop', rating: 5, review: 'Amazing service!' } },
+    taskCreated:        { url: '/api/tasks', body: { title: 'Follow up', description: 'Call vendor', priority: 'high', dueDate: '2026-09-15' } },
+    taskCompleted:      { url: '/api/tasks', body: { title: 'Done Task', priority: 'medium' } },
+    categoryCreated:    { url: '/api/categories', body: { name: 'Electronics', icon: 'fas fa-laptop' } },
+    noteCreated:        { url: '/api/notes', body: { title: 'Test Note', content: 'Remember this', color: '#6c5ce7' } },
+    eventCreated:       { url: '/api/events', body: { title: 'Team Standup', date: '2026-09-15', time: '10:00', type: 'meeting' } }
+  };
+
+  function dcLog(msg, ok = true) {
+    const el = document.getElementById('discordLog');
+    if (!el) return;
+    el.style.display = 'block';
+    el.innerHTML += `<div class="${ok ? 'ok' : 'fail'}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  async function dcPost(url, body) {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error(`${res.status}`);
+    return await res.json();
+  }
+
+  window.discordTest = async function(name) {
+    const conf = dcPayloads[name];
+    if (!conf) return;
+    try {
+      if (name === 'shopUpdated' || name === 'shopStatusChanged') {
+        const created = await dcPost(`${DC_API}${conf.url}`, { ...conf.body, name: 'Target Shop', phone: '1111111111', status: 'pending' });
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(name === 'shopStatusChanged' ? { status: 'active' } : { name: 'Updated Shop' }) });
+      } else if (name === 'shopDeleted') {
+        const created = await dcPost(`${DC_API}${conf.url}`, conf.body);
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE' });
+      } else if (name === 'inquiryDeleted') {
+        const created = await dcPost(`${DC_API}${conf.url}`, conf.body);
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE' });
+      } else if (name === 'taskCompleted') {
+        const created = await dcPost(`${DC_API}${conf.url}`, { ...conf.body, title: 'Complete Target' });
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ done: true }) });
+      } else {
+        await dcPost(`${DC_API}${conf.url}`, conf.body);
+      }
+      dcLog(`✅ ${name} sent`);
+    } catch (err) {
+      dcLog(`❌ ${name}: ${err.message}`, false);
+    }
+  };
+
+  window.discordTestAll = async function() {
+    const btn = document.getElementById('discordTestAllBtn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...'; }
+    for (const key of Object.keys(dcPayloads)) {
+      await window.discordTest(key);
+      await new Promise(r => setTimeout(r, 1200));
+    }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-play"></i> Trigger All (One by One)'; }
+  };
+
+  window.discordAnnounce = async function() {
+    const title = document.getElementById('dcAnnounceTitle')?.value.trim();
+    const message = document.getElementById('dcAnnounceMessage')?.value.trim();
+    const color = document.getElementById('dcAnnounceColor')?.value || 'purple';
+    if (!title || !message) { dcLog('❌ Enter title and message', false); return; }
+    try {
+      await dcPost(`${DC_API}/api/announcements`, { title, message, color });
+      dcLog(`✅ Announcement "${title}" sent`);
+      document.getElementById('dcAnnounceTitle').value = '';
+      document.getElementById('dcAnnounceMessage').value = '';
+    } catch (err) { dcLog(`❌ Announcement: ${err.message}`, false); }
+  };
+
+  window.discordBotTest = async function() {
+    try {
+      await dcPost(`${DC_API}/api/announcements/test`, {});
+      dcLog('✅ Bot test sent');
+    } catch (err) { dcLog(`❌ Bot test: ${err.message}`, false); }
+  };
 
   // ========== LOAD ALL ==========
   async function loadAll() {

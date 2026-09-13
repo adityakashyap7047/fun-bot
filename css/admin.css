@@ -2487,3 +2487,92 @@ input, textarea, select { font-family: inherit; }
   font-size: 1.1rem;
   color: #ea4335;
 }
+
+/* ========== DISCORD TESTER ========== */
+.discord-test-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.discord-test-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.discord-test-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.discord-test-card h4 {
+  font-size: 0.9rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.discord-test-card p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.dtc-header {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.discord-test-card .badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.discord-test-card .badge.create { background: #d1fae5; color: #065f46; }
+.discord-test-card .badge.update { background: #ede9fe; color: #5b21b6; }
+.discord-test-card .badge.delete { background: #fee2e2; color: #991b1b; }
+
+.discord-announce-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.discord-log {
+  margin-top: 20px;
+  background: #0d1b2a;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  max-height: 200px;
+  overflow-y: auto;
+  color: #94a3b8;
+  display: none;
+}
+
+.discord-log .ok { color: #34d399; }
+.discord-log .fail { color: #f87171; }
+
+@media (max-width: 768px) {
+  .discord-test-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .discord-test-grid { grid-template-columns: 1fr; }
+}

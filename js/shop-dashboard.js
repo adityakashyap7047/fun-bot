@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Activity
     document.getElementById('shopActivityList').innerHTML = `
-      <div class="activity-item"><div class="activity-icon icon-shop"><i class="fas fa-store"></i></div><div class="activity-info"><div class="activity-title">Shop listed</div><div class="activity-desc">${shop.name} is live on ShopLocal</div></div><span class="activity-badge badge-active">Active</span></div>
+      <div class="activity-item"><div class="activity-icon icon-shop"><i class="fas fa-store"></i></div><div class="activity-info"><div class="activity-title">Shop listed</div><div class="activity-desc">${escapeHtml(shop.name)} is live on ShopLocal</div></div><span class="activity-badge badge-active">Active</span></div>
       <div class="activity-item"><div class="activity-icon icon-review"><i class="fas fa-crown"></i></div><div class="activity-info"><div class="activity-title">Plan: ${planDef.label}</div><div class="activity-desc">₹${planDef.price}/month — ${plan === 'enterprise' ? 'all features unlocked' : plan === 'pro' ? 'enhanced access' : 'upgrade for more'}</div></div><span class="activity-badge badge-complete">Current</span></div>
       ${plan === 'basic' ? '<div class="activity-item"><div class="activity-icon icon-task"><i class="fas fa-lightbulb"></i></div><div class="activity-info"><div class="activity-title">Tip</div><div class="activity-desc">Upgrade to Pro for social media promotion and analytics</div></div></div>' : ''}
     `;
@@ -438,15 +438,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('shopProfile').innerHTML = `
       <div class="shop-profile-header">
         <div class="shop-profile-image" style="background: ${shop.image ? 'none' : (gradients[shop.category] || 'linear-gradient(135deg, #6c5ce7, #00cec9)')}">
-          ${shop.image ? `<img src="${shop.image}" alt="${shop.name}" style="width:100%;height:100%;object-fit:cover;border-radius:16px">` : `<i class="${icons[shop.category] || 'fas fa-store'}"></i>`}
+          ${shop.image ? `<img src="${escapeHtml(shop.image)}" alt="${escapeHtml(shop.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:16px">` : `<i class="${icons[shop.category] || 'fas fa-store'}"></i>`}
         </div>
         <div class="shop-profile-info">
-          <h2>${shop.name} ${plan === 'pro' || plan === 'enterprise' ? '<span style="font-size:0.7rem;padding:4px 10px;border-radius:20px;background:var(--primary-bg);color:var(--primary);vertical-align:middle;margin-left:8px"><i class="fas fa-award"></i> Featured</span>' : ''}</h2>
-          <div class="shop-category-tag">${shop.category}</div>
-          <div class="shop-profile-detail"><i class="fas fa-user"></i> ${shop.owner}</div>
-          <div class="shop-profile-detail"><i class="fas fa-phone"></i> ${shop.phone}</div>
-          <div class="shop-profile-detail"><i class="fas fa-map-marker-alt"></i> ${shop.address || 'No address set'}</div>
-          <div class="shop-profile-detail"><i class="fas fa-info-circle"></i> ${shop.description || 'No description'}</div>
+          <h2>${escapeHtml(shop.name)} ${plan === 'pro' || plan === 'enterprise' ? '<span style="font-size:0.7rem;padding:4px 10px;border-radius:20px;background:var(--primary-bg);color:var(--primary);vertical-align:middle;margin-left:8px"><i class="fas fa-award"></i> Featured</span>' : ''}</h2>
+          <div class="shop-category-tag">${escapeHtml(shop.category)}</div>
+          <div class="shop-profile-detail"><i class="fas fa-user"></i> ${escapeHtml(shop.owner)}</div>
+          <div class="shop-profile-detail"><i class="fas fa-phone"></i> ${escapeHtml(shop.phone)}</div>
+          <div class="shop-profile-detail"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(shop.address || 'No address set')}</div>
+          <div class="shop-profile-detail"><i class="fas fa-info-circle"></i> ${escapeHtml(shop.description || 'No description')}</div>
           <div class="shop-profile-detail"><i class="fas fa-tag"></i> Plan: <strong style="margin-left:4px">${PLANS[plan]?.label || 'Basic'}</strong></div>
         </div>
       </div>
@@ -583,10 +583,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="review-item">
           <div class="review-header">
             <div class="review-avatar">${t.name.charAt(0)}</div>
-            <div class="review-meta"><h4>${t.name}</h4><span class="review-date">${new Date(t.createdAt).toLocaleDateString()}</span></div>
+            <div class="review-meta"><h4>${escapeHtml(t.name)}</h4><span class="review-date">${new Date(t.createdAt).toLocaleDateString()}</span></div>
           </div>
           <div class="review-stars">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
-          <div class="review-text">${t.review}</div>
+          <div class="review-text">${escapeHtml(t.review)}</div>
           ${(plan === 'pro' || plan === 'enterprise') ? `
             <div style="margin-top:12px">
               <button class="btn btn-ghost" style="font-size:0.8rem;padding:6px 12px" onclick="toast('Reply feature coming soon!','info')"><i class="fas fa-reply"></i> Reply</button>
@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="multi-shop-card">
               <div class="multi-shop-header">
                 <div class="multi-shop-icon" style="background:${gradients[shop.category] || 'linear-gradient(135deg, #6c5ce7, #00cec9)'}"><i class="${icons[shop.category] || 'fas fa-store'}"></i></div>
-                <div class="multi-shop-info"><h3>${shop.name}</h3><p>${shop.category} · ${shop.phone}</p></div>
+                <div class="multi-shop-info"><h3>${escapeHtml(shop.name)}</h3><p>${escapeHtml(shop.category)} · ${escapeHtml(shop.phone)}</p></div>
               </div>
               <div class="multi-shop-stats">
                 <div class="multi-shop-stat"><div class="val">${Math.floor(Math.random()*300)+50}</div><div class="lbl">Views</div></div>
@@ -732,20 +732,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('changePasswordForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const currentPass = document.getElementById('currentPass')?.value;
       const newPass = document.getElementById('newPass').value;
       const confirmPass = document.getElementById('confirmPass').value;
-      if (newPass.length < 4) { toast('Min 4 characters', 'error'); return; }
+      if (newPass.length < 8) { toast('Min 8 characters required', 'error'); return; }
+      if (!/[A-Z]/.test(newPass) || !/[a-z]/.test(newPass) || !/[0-9]/.test(newPass)) {
+        toast('Password must contain uppercase, lowercase, and a number', 'error'); return;
+      }
       if (newPass !== confirmPass) { toast('Passwords do not match', 'error'); return; }
+      if (!currentPass) { toast('Current password is required', 'error'); return; }
       try {
         const res = await fetch('/api/auth/reset-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: newPass })
+          body: JSON.stringify({ password: newPass, currentPassword: currentPass })
         });
-        if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
         toast('Password updated!');
         e.target.reset();
-      } catch (err) { toast('Failed to update password', 'error'); }
+      } catch (err) { toast('Failed: ' + err.message, 'error'); }
     });
   }
 
@@ -838,91 +844,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('sidebarCollapse')?.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('collapsed'));
 
-  // ========== DISCORD TESTER ==========
-  const DC_API = window.location.origin;
-
-  const dcPayloads = {
-    shopCreated:        { url: '/api/shops', body: { name: 'Test Shop', owner: 'Test Owner', category: 'Food & Drinks', phone: '9999999999', plan: 'pro', status: 'active', description: 'Discord webhook test' } },
-    shopUpdated:        { url: '/api/shops', body: { name: 'Update Shop', owner: 'Owner', category: 'Retail', phone: '8888888888', status: 'active' } },
-    shopStatusChanged:  { url: '/api/shops', body: { name: 'Status Shop', owner: 'Owner', category: 'Services', phone: '7777777777', status: 'pending' } },
-    shopDeleted:        { url: '/api/shops', body: { name: 'Delete Shop', owner: 'Owner', category: 'Other', phone: '6666666666', status: 'active' } },
-    inquiryCreated:     { url: '/api/inquiries', body: { shopName: 'Inquiry Shop', ownerName: 'Inquiry Owner', phone: '5555555555', category: 'Food & Drinks', description: 'Test inquiry' } },
-    inquiryDeleted:     { url: '/api/inquiries', body: { shopName: 'Delete Inquiry', ownerName: 'Owner', phone: '4444444444' } },
-    testimonialCreated: { url: '/api/testimonials', body: { name: 'Happy Customer', shop: 'Test Shop', rating: 5, review: 'Amazing service!' } },
-    taskCreated:        { url: '/api/tasks', body: { title: 'Follow up', description: 'Call vendor', priority: 'high', dueDate: '2026-09-15' } },
-    taskCompleted:      { url: '/api/tasks', body: { title: 'Done Task', priority: 'medium' } },
-    categoryCreated:    { url: '/api/categories', body: { name: 'Electronics', icon: 'fas fa-laptop' } },
-    noteCreated:        { url: '/api/notes', body: { title: 'Test Note', content: 'Remember this', color: '#6c5ce7' } },
-    eventCreated:       { url: '/api/events', body: { title: 'Team Standup', date: '2026-09-15', time: '10:00', type: 'meeting' } }
-  };
-
-  function dcLog(msg, ok = true) {
-    const el = document.getElementById('discordLog');
-    if (!el) return;
-    el.style.display = 'block';
-    el.innerHTML += `<div class="${ok ? 'ok' : 'fail'}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
-    el.scrollTop = el.scrollHeight;
-  }
-
-  async function dcPost(url, body) {
-    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if (!res.ok) throw new Error(`${res.status}`);
-    return await res.json();
-  }
-
-  window.discordTest = async function(name) {
-    const conf = dcPayloads[name];
-    if (!conf) return;
-    try {
-      if (name === 'shopUpdated' || name === 'shopStatusChanged') {
-        const created = await dcPost(`${DC_API}${conf.url}`, { ...conf.body, name: 'Target Shop', phone: '1111111111', status: 'pending' });
-        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(name === 'shopStatusChanged' ? { status: 'active' } : { name: 'Updated Shop' }) });
-      } else if (name === 'shopDeleted') {
-        const created = await dcPost(`${DC_API}${conf.url}`, conf.body);
-        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE' });
-      } else if (name === 'inquiryDeleted') {
-        const created = await dcPost(`${DC_API}${conf.url}`, conf.body);
-        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE' });
-      } else if (name === 'taskCompleted') {
-        const created = await dcPost(`${DC_API}${conf.url}`, { ...conf.body, title: 'Complete Target' });
-        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ done: true }) });
-      } else {
-        await dcPost(`${DC_API}${conf.url}`, conf.body);
-      }
-      dcLog(`✅ ${name} sent`);
-    } catch (err) {
-      dcLog(`❌ ${name}: ${err.message}`, false);
-    }
-  };
-
-  window.discordTestAll = async function() {
-    const btn = document.getElementById('discordTestAllBtn');
-    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...'; }
-    for (const key of Object.keys(dcPayloads)) {
-      await window.discordTest(key);
-      await new Promise(r => setTimeout(r, 1200));
-    }
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-play"></i> Trigger All (One by One)'; }
-  };
-
-  window.discordAnnounce = async function() {
-    const title = document.getElementById('announceTitle')?.value.trim();
-    const message = document.getElementById('announceMessage')?.value.trim();
-    const color = document.getElementById('announceColor')?.value || 'purple';
-    if (!title || !message) { dcLog('❌ Enter title and message', false); return; }
-    try {
-      await dcPost(`${DC_API}/api/announcements`, { title, message, color });
-      dcLog(`✅ Announcement "${title}" sent`);
-      document.getElementById('announceTitle').value = '';
-      document.getElementById('announceMessage').value = '';
-    } catch (err) { dcLog(`❌ Announcement: ${err.message}`, false); }
-  };
-
-  window.discordBotTest = async function() {
-    try {
-      await dcPost(`${DC_API}/api/announcements/test`, {});
-      dcLog('✅ Bot test sent');
-    } catch (err) { dcLog(`❌ Bot test: ${err.message}`, false); }
-  };
-
 });
+
