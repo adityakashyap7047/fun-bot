@@ -1,5 +1,21 @@
 /* ========== MAP PAGE STYLES ========== */
 
+/* Fallback variables for map page (map.html loads style.css, not admin.css) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #f8fafc;
+  --bg2: #f1f5f9;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --text-dim: #64748b;
+  --text-muted: #94a3b8;
+  --primary: #6366f1;
+  --primary-bg: #eef2ff;
+  --green: #10b981;
+}
+
 .map-layout {
   display: flex;
   height: calc(100vh - 64px);
