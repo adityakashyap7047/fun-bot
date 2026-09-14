@@ -474,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Activity
     document.getElementById('shopActivityList').innerHTML = `
-      <div class="activity-item"><div class="activity-icon icon-shop"><i class="fas fa-store"></i></div><div class="activity-info"><div class="activity-title">Shop listed</div><div class="activity-desc">${escapeHtml(shop.name)} is live on ShopLocal</div></div><span class="activity-badge badge-active">Active</span></div>
+      <div class="activity-item"><div class="activity-icon icon-shop"><i class="fas fa-store"></i></div><div class="activity-info"><div class="activity-title">Shop listed</div><div class="activity-desc">${escapeHtml(shop.name)} is live on VyaparHub</div></div><span class="activity-badge badge-active">Active</span></div>
       <div class="activity-item"><div class="activity-icon icon-review"><i class="fas fa-crown"></i></div><div class="activity-info"><div class="activity-title">Plan: ${planDef.label}</div><div class="activity-desc">₹${planDef.price}/month — ${plan === 'enterprise' ? 'all features unlocked' : plan === 'pro' ? 'enhanced access' : 'upgrade for more'}</div></div><span class="activity-badge badge-complete">Current</span></div>
       ${plan === 'basic' ? '<div class="activity-item"><div class="activity-icon icon-task"><i class="fas fa-lightbulb"></i></div><div class="activity-info"><div class="activity-title">Tip</div><div class="activity-desc">Upgrade to Pro for social media promotion and analytics</div></div></div>' : ''}
     `;
@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const isEnterprise = plan === 'enterprise';
-    const shareText = encodeURIComponent(`Check out ${currentShop.name} on ShopLocal! ${currentShop.description || ''}`);
+    const shareText = encodeURIComponent(`Check out ${currentShop.name} on VyaparHub! ${currentShop.description || ''}`);
     const shareUrl = encodeURIComponent(window.location.origin);
     document.getElementById('promoContent').innerHTML = `
       <div class="promo-card">
@@ -880,7 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <i class="fas fa-comments"></i>
           <h3>Live Chat</h3>
           <p>Chat with your dedicated account manager in real-time.</p>
-          <button class="btn btn-primary" onclick="window.open('mailto:support@shoplocal.com?subject=Support Request - ${encodeURIComponent(currentShop?.name || '')}', '_blank')">Start Chat via Email</button>
+          <button class="btn btn-primary" onclick="window.open('mailto:support@vyaparhub.com?subject=Support Request - ${encodeURIComponent(currentShop?.name || '')}', '_blank')">Start Chat via Email</button>
         </div>
         <div class="support-card">
           <i class="fas fa-phone-alt"></i>
@@ -892,7 +892,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <i class="fas fa-envelope"></i>
           <h3>Email Support</h3>
           <p>Send us an email. We respond within 2 hours.</p>
-          <p style="font-size:0.9rem;font-weight:500;color:var(--primary);margin-bottom:0">priority@shoplocal.com</p>
+          <p style="font-size:0.9rem;font-weight:500;color:var(--primary);margin-bottom:0">priority@vyaparhub.com</p>
         </div>
       </div>
     `;

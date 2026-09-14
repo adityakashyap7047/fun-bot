@@ -59,7 +59,7 @@ async function seedData() {
 
     // Testimonials
     await Testimonial.insertMany([
-      { name: 'Rajesh Kumar', shop: 'Taste of India', rating: 5, review: 'ShopLocal has been amazing for my business! Saw a 40% increase in customers within a week.' },
+      { name: 'Rajesh Kumar', shop: 'Taste of India', rating: 5, review: 'VyaparHub has been amazing for my business! Saw a 40% increase in customers within a week.' },
       { name: 'Priya Sharma', shop: 'Fashion Hub', rating: 5, review: 'The investment was totally worth it. My shop now gets visibility from customers I could never reach.' },
       { name: 'Amit Patel', shop: 'Fresh Mart', rating: 4, review: 'Great platform for local businesses. The admin panel makes it easy to manage my listing.' },
       { name: 'Sneha Reddy', shop: 'Glow Beauty Salon', rating: 5, review: 'The Pro plan is fantastic! Social media promotion brought in so many new clients.' }

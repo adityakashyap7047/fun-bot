@@ -1,7 +1,7 @@
 {
-  "name": "shoplocal-backend",
+  "name": "vyaparhub-backend",
   "version": "1.0.0",
-  "description": "ShopLocal Admin Panel Backend with MongoDB",
+  "description": "VyaparHub Admin Panel Backend with MongoDB",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

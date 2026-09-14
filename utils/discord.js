@@ -39,7 +39,7 @@ async function sendToChannel(webhookUrl, title, description, color = COLORS.gree
     description,
     color,
     timestamp: new Date().toISOString(),
-    footer: { text: 'ShopLocal Admin Panel' },
+    footer: { text: 'VyaparHub Admin Panel' },
     fields: fields.map(f => ({
       name: f.name,
       value: f.value,
@@ -49,7 +49,7 @@ async function sendToChannel(webhookUrl, title, description, color = COLORS.gree
 
   try {
     await axios.post(webhookUrl, {
-      username: 'ShopLocal Bot',
+      username: 'VyaparHub Bot',
       avatar_url: 'https://img.icons8.com/color/96/shop.png',
       content: '@everyone',
       embeds: [embed]
@@ -73,7 +73,7 @@ async function broadcastToAll(title, description, color = COLORS.purple, fields 
     description,
     color,
     timestamp: new Date().toISOString(),
-    footer: { text: 'ShopLocal Admin Panel' },
+    footer: { text: 'VyaparHub Admin Panel' },
     fields: fields.map(f => ({
       name: f.name,
       value: f.value,
@@ -84,7 +84,7 @@ async function broadcastToAll(title, description, color = COLORS.purple, fields 
   const results = await Promise.allSettled(
     allUrls.map(url =>
       axios.post(url, {
-        username: 'ShopLocal Bot',
+        username: 'VyaparHub Bot',
         avatar_url: 'https://img.icons8.com/color/96/shop.png',
         content: '@everyone',
         embeds: [embed]
@@ -101,7 +101,7 @@ async function broadcastToAll(title, description, color = COLORS.purple, fields 
 async function shopCreated(shop) {
   await sendToChannel(WEBHOOKS.shopCreated,
     '🏪 New Shop Listed!',
-    `**${shop.name}** has been registered on ShopLocal.`,
+    `**${shop.name}** has been registered on VyaparHub.`,
     COLORS.green,
     [
       { name: 'Owner', value: shop.owner },
@@ -128,7 +128,7 @@ async function shopUpdated(shop) {
 async function shopDeleted(shopName) {
   await sendToChannel(WEBHOOKS.shopDeleted,
     '🗑️ Shop Removed',
-    `**${shopName}** has been removed from ShopLocal.`,
+    `**${shopName}** has been removed from VyaparHub.`,
     COLORS.red
   );
 }
@@ -151,7 +151,7 @@ async function shopStatusChanged(shop, oldStatus) {
 async function inquiryCreated(inquiry) {
   await sendToChannel(WEBHOOKS.inquiryCreated,
     '📩 New Inquiry Received!',
-    `**${inquiry.shopName}** wants to list their shop on ShopLocal.`,
+    `**${inquiry.shopName}** wants to list their shop on VyaparHub.`,
     COLORS.teal,
     [
       { name: 'Owner', value: inquiry.ownerName },
@@ -258,7 +258,7 @@ async function onboardingCompleted(data) {
 async function dailySummary(stats) {
   await broadcastToAll(
     '📊 Daily Summary',
-    'Here\'s today\'s overview of ShopLocal.',
+    'Here\'s today\'s overview of VyaparHub.',
     COLORS.blue,
     [
       { name: 'Total Shops', value: String(stats.totalShops) },

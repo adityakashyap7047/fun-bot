@@ -98,7 +98,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplocal',
+    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/vyaparhub',
     ttl: 24 * 60 * 60,
     collectionName: 'sessions'
   }),
@@ -199,7 +199,7 @@ function scheduleDailySummary() {
 }
 
 // Connect to DB and start server
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplocal')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/vyaparhub')
   .then(async () => {
     console.log('Connected to MongoDB');
     const seedData = require('./seed');
