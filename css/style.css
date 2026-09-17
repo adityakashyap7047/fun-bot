@@ -276,6 +276,26 @@ input, textarea, select, button { font-family: inherit; }
   margin-right: 4px;
 }
 
+.nav-logo {
+  height: 45px;
+  width: auto;
+}
+
+.footer-logo {
+  height: 60px;
+  width: auto;
+}
+
+.loader-logo-img {
+  height: 80px;
+  width: auto;
+}
+
+.brand-logo-img {
+  height: 70px;
+  width: auto;
+}
+
 .nav-links {
   display: flex;
   gap: 32px;
