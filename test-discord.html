@@ -40,6 +40,18 @@
 <h1>Discord Bot Tester</h1>
 <p class="subtitle">Click a button to trigger a Discord webhook notification</p>
 
+<div id="loginSection" style="max-width:400px;margin:30px auto;background:#16213e;border-radius:12px;padding:24px;border:1px solid #0f3460;">
+  <h2 style="color:#6c5ce7;margin-bottom:16px;text-align:center;">Admin Login Required</h2>
+  <input id="loginUser" placeholder="Username" style="width:100%;padding:12px;border-radius:8px;border:1px solid #0f3460;background:#0d1b2a;color:#eee;font-size:0.9rem;margin-bottom:12px;">
+  <input id="loginPass" type="password" placeholder="Password" style="width:100%;padding:12px;border-radius:8px;border:1px solid #0f3460;background:#0d1b2a;color:#eee;font-size:0.9rem;margin-bottom:12px;">
+  <button class="btn-blue" style="width:100%;" onclick="doLogin()">Login</button>
+</div>
+
+<div id="testerSection" style="display:none;">
+<div style="text-align:right;max-width:1100px;margin:0 auto 10px;">
+  <button style="background:#e17055;padding:8px 16px;font-size:0.8rem;" onclick="doLogout()">Logout</button>
+</div>
+
 <div class="grid">
 
   <!-- SHOP -->
@@ -146,13 +158,14 @@
     <button style="background:#8b5cf6;padding:14px 32px;font-size:1rem;flex:1;" onclick="sendAnnouncement()">📢 Broadcast to All Channels</button>
     <button style="background:#00cec9;color:#000;padding:14px 24px;font-size:0.9rem;" onclick="testBot()">🧪 Test Bot</button>
   </div>
-</div>
-
 <div id="status"></div>
 <div class="log" id="log"></div>
 
+</div><!-- end testerSection -->
+
 <script>
 const API = window.location.origin;
+const AUTH_OPTS = { credentials: 'include' };
 
 const payloads = {
   shopCreated: { method: 'POST', url: '/api/shops', body: { name: 'Test Shop', owner: 'Test Owner', category: 'Restaurant', phone: '9999999999', plan: 'pro', status: 'active', description: 'A test shop for Discord webhook testing' } },
@@ -168,6 +181,52 @@ const payloads = {
   noteCreated: { method: 'POST', url: '/api/notes', body: { title: 'Important Note', content: 'Remember to update the dashboard', color: '#6c5ce7' } },
   eventCreated: { method: 'POST', url: '/api/events', body: { title: 'Team Standup', date: '2026-09-15', time: '10:00', type: 'meeting' } }
 };
+
+async function checkAuth() {
+  try {
+    const res = await fetch(`${API}/api/settings`, { ...AUTH_OPTS });
+    if (res.ok) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('testerSection').style.display = 'block';
+      return true;
+    }
+  } catch (e) {}
+  document.getElementById('loginSection').style.display = 'block';
+  document.getElementById('testerSection').style.display = 'none';
+  return false;
+}
+
+async function doLogin() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  if (!username || !password) { setStatus('❌ Enter username and password', 'error'); return; }
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    log(`✅ Logged in as ${data.user?.username || username}`);
+    setStatus('✅ Logged in!', 'sent');
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('testerSection').style.display = 'block';
+  } catch (err) {
+    log(`❌ Login failed: ${err.message}`, false);
+    setStatus(`❌ ${err.message}`, 'error');
+  }
+}
+
+async function doLogout() {
+  try {
+    await fetch(`${API}/api/auth/logout`, { ...AUTH_OPTS });
+    log('Logged out');
+  } catch (e) {}
+  document.getElementById('loginSection').style.display = 'block';
+  document.getElementById('testerSection').style.display = 'none';
+}
 
 function log(msg, ok = true) {
   const el = document.getElementById('log');
@@ -187,39 +246,42 @@ async function run(name) {
   const config = payloads[name];
   try {
     if (name === 'shopUpdated') {
-      // create then update
-      const createRes = await fetch(`${API}/api/shops`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Update Target', owner: 'Owner', category: 'Test', phone: '1111111111', status: 'active' }) });
+      const createRes = await fetch(`${API}/api/shops`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, ...AUTH_OPTS, body: JSON.stringify({ name: 'Update Target', owner: 'Owner', category: 'Test', phone: '1111111111', status: 'active' }) });
       const created = await createRes.json();
-      const res = await fetch(`${API}/api/shops/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Updated Shop Name', owner: 'Updated Owner' }) });
+      if (!createRes.ok) throw new Error(`POST failed: ${createRes.status}`);
+      const res = await fetch(`${API}/api/shops/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, ...AUTH_OPTS, body: JSON.stringify({ name: 'Updated Shop Name', owner: 'Updated Owner' }) });
       if (!res.ok) throw new Error(`PUT failed: ${res.status}`);
       log(`✅ ${name} - sent successfully`);
     } else if (name === 'shopStatusChanged') {
-      const createRes = await fetch(`${API}/api/shops`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Status Target', owner: 'Owner', category: 'Test', phone: '2222222222', status: 'pending' }) });
+      const createRes = await fetch(`${API}/api/shops`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, ...AUTH_OPTS, body: JSON.stringify({ name: 'Status Target', owner: 'Owner', category: 'Test', phone: '2222222222', status: 'pending' }) });
       const created = await createRes.json();
-      const res = await fetch(`${API}/api/shops/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'active' }) });
+      if (!createRes.ok) throw new Error(`POST failed: ${createRes.status}`);
+      const res = await fetch(`${API}/api/shops/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, ...AUTH_OPTS, body: JSON.stringify({ status: 'active' }) });
       if (!res.ok) throw new Error(`PUT failed: ${res.status}`);
       log(`✅ ${name} - sent successfully`);
     } else if (name === 'shopDeleted') {
-      const createRes = await fetch(`${API}/api/shops`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Delete Target', owner: 'Owner', category: 'Test', phone: '3333333333', status: 'active' }) });
+      const createRes = await fetch(`${API}/api/shops`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, ...AUTH_OPTS, body: JSON.stringify({ name: 'Delete Target', owner: 'Owner', category: 'Test', phone: '3333333333', status: 'active' }) });
       const created = await createRes.json();
-      const res = await fetch(`${API}/api/shops/${created._id}`, { method: 'DELETE' });
+      if (!createRes.ok) throw new Error(`POST failed: ${createRes.status}`);
+      const res = await fetch(`${API}/api/shops/${created._id}`, { method: 'DELETE', ...AUTH_OPTS });
       if (!res.ok) throw new Error(`DELETE failed: ${res.status}`);
       log(`✅ ${name} - sent successfully`);
     } else if (name === 'inquiryDeleted') {
-      const createRes = await fetch(`${API}/api/inquiries`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shopName: 'Delete Inquiry', ownerName: 'Owner', phone: '4444444444' }) });
+      const createRes = await fetch(`${API}/api/inquiries`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, ...AUTH_OPTS, body: JSON.stringify({ shopName: 'Delete Inquiry', ownerName: 'Owner', phone: '4444444444' }) });
       const created = await createRes.json();
-      const res = await fetch(`${API}/api/inquiries/${created._id}`, { method: 'DELETE' });
+      if (!createRes.ok) throw new Error(`POST failed: ${createRes.status}`);
+      const res = await fetch(`${API}/api/inquiries/${created._id}`, { method: 'DELETE', ...AUTH_OPTS });
       if (!res.ok) throw new Error(`DELETE failed: ${res.status}`);
       log(`✅ ${name} - sent successfully`);
     } else if (name === 'taskCompleted') {
-      const createRes = await fetch(`${API}/api/tasks`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'Complete Target Task', priority: 'medium' }) });
+      const createRes = await fetch(`${API}/api/tasks`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, ...AUTH_OPTS, body: JSON.stringify({ title: 'Complete Target Task', priority: 'medium' }) });
       const created = await createRes.json();
-      const res = await fetch(`${API}/api/tasks/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ done: true }) });
+      if (!createRes.ok) throw new Error(`POST failed: ${createRes.status}`);
+      const res = await fetch(`${API}/api/tasks/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, ...AUTH_OPTS, body: JSON.stringify({ done: true }) });
       if (!res.ok) throw new Error(`PUT failed: ${res.status}`);
       log(`✅ ${name} - sent successfully`);
     } else {
-      // Simple POST
-      const res = await fetch(`${API}${config.url}`, { method: config.method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config.body) });
+      const res = await fetch(`${API}${config.url}`, { method: config.method, headers: { 'Content-Type': 'application/json' }, ...AUTH_OPTS, body: JSON.stringify(config.body) });
       if (!res.ok) throw new Error(`POST failed: ${res.status}`);
       log(`✅ ${name} - sent successfully`);
     }
@@ -250,6 +312,7 @@ async function sendAnnouncement() {
     const res = await fetch(`${API}/api/announcements`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      ...AUTH_OPTS,
       body: JSON.stringify({ title, message, color })
     });
     const data = await res.json();
@@ -267,7 +330,7 @@ async function sendAnnouncement() {
 async function testBot() {
   setStatus('🧪 Testing bot...', '');
   try {
-    const res = await fetch(`${API}/api/announcements/test`, { method: 'POST' });
+    const res = await fetch(`${API}/api/announcements/test`, { method: 'POST', ...AUTH_OPTS });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
     log('✅ Test notification sent to bot-tester-feed');
@@ -277,6 +340,8 @@ async function testBot() {
     setStatus(`❌ ${err.message}`, 'error');
   }
 }
+
+checkAuth();
 </script>
 </body>
 </html>

@@ -4,6 +4,32 @@ const Analytics = require('../models/Analytics');
 const Shop = require('../models/Shop');
 const { ensureAuth } = require('../middleware/auth');
 
+// GET admin analytics overview (must be before /:shopId to avoid route conflict)
+router.get('/overview/all', ensureAuth, async (req, res) => {
+  try {
+    const shops = await Shop.find();
+    const totalViews = shops.reduce((sum, s) => sum + (s.views || 0), 0);
+    const totalInquiries = shops.reduce((sum, s) => sum + (s.inquiryCount || 0), 0);
+
+    const categoryMap = {};
+    shops.forEach(s => { categoryMap[s.category] = (categoryMap[s.category] || 0) + 1; });
+
+    const planMap = {};
+    shops.forEach(s => { planMap[s.plan] = (planMap[s.plan] || 0) + 1; });
+
+    res.json({
+      totalShops: shops.length,
+      activeShops: shops.filter(s => s.status === 'active').length,
+      totalViews,
+      totalInquiries,
+      categoryDistribution: categoryMap,
+      planDistribution: planMap
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load analytics' });
+  }
+});
+
 // GET analytics for a specific shop (auth required)
 router.get('/:shopId', ensureAuth, async (req, res) => {
   try {
@@ -50,32 +76,6 @@ router.get('/:shopId', ensureAuth, async (req, res) => {
         avgViews: Math.round(avgViews),
         conversionRate: totalViews > 0 ? ((totalInquiries / totalViews) * 100).toFixed(1) : '0.0'
       }
-    });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to load analytics' });
-  }
-});
-
-// GET admin analytics overview
-router.get('/overview/all', ensureAuth, async (req, res) => {
-  try {
-    const shops = await Shop.find();
-    const totalViews = shops.reduce((sum, s) => sum + (s.views || 0), 0);
-    const totalInquiries = shops.reduce((sum, s) => sum + (s.inquiryCount || 0), 0);
-
-    const categoryMap = {};
-    shops.forEach(s => { categoryMap[s.category] = (categoryMap[s.category] || 0) + 1; });
-
-    const planMap = {};
-    shops.forEach(s => { planMap[s.plan] = (planMap[s.plan] || 0) + 1; });
-
-    res.json({
-      totalShops: shops.length,
-      activeShops: shops.filter(s => s.status === 'active').length,
-      totalViews,
-      totalInquiries,
-      categoryDistribution: categoryMap,
-      planDistribution: planMap
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to load analytics' });

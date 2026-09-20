@@ -847,7 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load channel list
   async function loadChannels() {
     try {
-      const res = await fetch('/api/announcements/channels');
+      const res = await fetch('/api/announcements/channels', { credentials: 'include' });
       const channels = await res.json();
       const list = document.getElementById('channelList');
       if (!list) return;
@@ -889,7 +889,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function dcPost(url, body) {
-    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(body) });
     if (!res.ok) throw new Error(`${res.status}`);
     return await res.json();
   }
@@ -900,16 +900,16 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (name === 'shopUpdated' || name === 'shopStatusChanged') {
         const created = await dcPost(`${DC_API}${conf.url}`, { ...conf.body, name: 'Target Shop', phone: '1111111111', status: 'pending' });
-        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(name === 'shopStatusChanged' ? { status: 'active' } : { name: 'Updated Shop' }) });
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(name === 'shopStatusChanged' ? { status: 'active' } : { name: 'Updated Shop' }) });
       } else if (name === 'shopDeleted') {
         const created = await dcPost(`${DC_API}${conf.url}`, conf.body);
-        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE' });
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE', credentials: 'include' });
       } else if (name === 'inquiryDeleted') {
         const created = await dcPost(`${DC_API}${conf.url}`, conf.body);
-        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE' });
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'DELETE', credentials: 'include' });
       } else if (name === 'taskCompleted') {
         const created = await dcPost(`${DC_API}${conf.url}`, { ...conf.body, title: 'Complete Target' });
-        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ done: true }) });
+        await fetch(`${DC_API}${conf.url}/${created._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ done: true }) });
       } else {
         await dcPost(`${DC_API}${conf.url}`, conf.body);
       }
